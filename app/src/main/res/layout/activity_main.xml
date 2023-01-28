@@ -8,12 +8,12 @@
     tools:context=".MainActivity">
 
     <ImageView
-        android:id="@+id/imageView"
+        android:id="@+id/avatarImageView"
         android:layout_width="@dimen/posts_avatar_size"
         android:layout_height="@dimen/posts_avatar_size"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="@id/barrier_on_top"
+        app:layout_constraintBottom_toBottomOf="@id/barrierOnTop"
         android:contentDescription="@string/post_author_avatar"
         android:src="@drawable/netology"
         android:layout_marginBottom="@dimen/common_spacing"
@@ -27,9 +27,9 @@
         android:text="@string/author"
         android:lines="1"
         android:ellipsize="end"
-        app:layout_constraintStart_toEndOf="@id/imageView"
+        app:layout_constraintStart_toEndOf="@id/avatarImageView"
         app:layout_constraintBottom_toTopOf="@id/textPublished"
-        app:layout_constraintTop_toTopOf="@id/imageView"
+        app:layout_constraintTop_toTopOf="@id/avatarImageView"
         app:layout_constraintEnd_toStartOf="@id/menuButton"
         android:layout_marginStart="@dimen/common_spacing"
         android:layout_marginEnd="@dimen/common_spacing"/>
@@ -40,9 +40,9 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="@string/date"
-        app:layout_constraintStart_toEndOf="@id/imageView"
+        app:layout_constraintStart_toEndOf="@id/avatarImageView"
         app:layout_constraintTop_toBottomOf="@id/author"
-        app:layout_constraintBottom_toBottomOf="@id/barrier_on_top"
+        app:layout_constraintBottom_toBottomOf="@id/barrierOnTop"
         android:layout_marginStart="@dimen/common_spacing"
         android:layout_marginEnd="@dimen/common_spacing"
         android:layout_marginBottom="@dimen/common_spacing"
@@ -59,37 +59,37 @@
         android:contentDescription="@string/content_desctiption_menuButton"
         />
     <androidx.constraintlayout.widget.Barrier
-        android:id="@+id/barrier_on_top"
+        android:id="@+id/barrierOnTop"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:barrierDirection="bottom"
-        app:constraint_referenced_ids="imageView, textPublished, menuButton, author" />
+        app:constraint_referenced_ids="avatarImageView, textPublished, menuButton, author" />
 
     <androidx.constraintlayout.widget.Barrier
-        android:id="@+id/barrier_on_bottom"
+        android:id="@+id/barrierOnBottom"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:barrierDirection="bottom"
-        app:constraint_referenced_ids="about_netology" />
+        app:constraint_referenced_ids="content" />
 
     <TextView
-        android:id="@+id/about_netology"
+        android:id="@+id/content"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/about_netology"
-        app:layout_constraintTop_toBottomOf="@id/barrier_on_top"
-        app:layout_constraintBottom_toTopOf="@id/barrier_on_bottom"
+        app:layout_constraintTop_toBottomOf="@id/barrierOnTop"
+        app:layout_constraintBottom_toTopOf="@id/barrierOnBottom"
         android:layout_marginTop="@dimen/common_spacing"
         android:layout_marginBottom="@dimen/common_spacing"
         />
 
     <ImageButton
-        android:id="@+id/likes"
+        android:id="@+id/like"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/barrier_on_bottom"
-        app:layout_constraintEnd_toStartOf="@id/likes_count"
+        app:layout_constraintTop_toBottomOf="@id/barrierOnBottom"
+        app:layout_constraintEnd_toStartOf="@id/likesCount"
         android:layout_marginTop="@dimen/common_spacing"
         android:src="@drawable/ic_baseline_favorite_border_24"
         android:background="@android:color/transparent"
@@ -97,14 +97,14 @@
         />
 
     <TextView
-        android:id="@+id/likes_count"
+        android:id="@+id/likesCount"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/barrier_on_bottom"
-        app:layout_constraintStart_toEndOf="@id/likes"
-        app:layout_constraintBottom_toBottomOf="@id/likes"
+        app:layout_constraintTop_toBottomOf="@id/barrierOnBottom"
+        app:layout_constraintStart_toEndOf="@id/like"
+        app:layout_constraintBottom_toBottomOf="@id/like"
         app:layout_constraintEnd_toStartOf="@id/share"
-        android:text="@string/likes_count"
+        tools:text="@string/likes_count"
         android:layout_marginTop="@dimen/common_spacing"
         android:layout_marginStart="@dimen/margin_near_imageButton"
         android:textSize="@dimen/text_size"
@@ -114,9 +114,9 @@
         android:id="@+id/share"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintStart_toEndOf="@id/likes_count"
-        app:layout_constraintTop_toBottomOf="@id/barrier_on_bottom"
-        app:layout_constraintEnd_toStartOf="@id/share_count"
+        app:layout_constraintStart_toEndOf="@id/likesCount"
+        app:layout_constraintTop_toBottomOf="@id/barrierOnBottom"
+        app:layout_constraintEnd_toStartOf="@id/shareCount"
         android:layout_marginTop="@dimen/common_spacing"
         android:layout_marginStart="@dimen/common_spacing"
         android:src="@drawable/ic_baseline_share_24"
@@ -125,13 +125,13 @@
         />
 
     <TextView
-        android:id="@+id/share_count"
+        android:id="@+id/shareCount"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/barrier_on_bottom"
+        app:layout_constraintTop_toBottomOf="@id/barrierOnBottom"
         app:layout_constraintStart_toEndOf="@id/share"
         app:layout_constraintBottom_toBottomOf="@id/share"
-        android:text="@string/share_count"
+        tools:text="@string/share_count"
         android:layout_marginTop="@dimen/common_spacing"
         android:layout_marginStart="@dimen/margin_near_imageButton"
         android:textSize="@dimen/text_size"
@@ -141,8 +141,8 @@
         android:id="@+id/viewsImage"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintEnd_toStartOf="@id/views_count"
-        app:layout_constraintTop_toBottomOf="@id/barrier_on_bottom"
+        app:layout_constraintEnd_toStartOf="@id/viewsCount"
+        app:layout_constraintTop_toBottomOf="@id/barrierOnBottom"
         android:layout_marginTop="@dimen/common_spacing"
         android:layout_marginEnd="@dimen/margin_near_imageButton"
         android:src="@drawable/ic_baseline_remove_red_eye_24"
@@ -153,13 +153,13 @@
 
 
     <TextView
-        android:id="@+id/views_count"
+        android:id="@+id/viewsCount"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/barrier_on_bottom"
+        app:layout_constraintTop_toBottomOf="@id/barrierOnBottom"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toBottomOf="@id/viewsImage"
-        android:text="@string/views_count"
+        tools:text="@string/views_count"
         android:layout_marginTop="@dimen/common_spacing"
         android:textSize="@dimen/text_size"
         />
