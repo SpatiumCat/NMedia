@@ -11,11 +11,11 @@ import ru.netology.nmedia.countMapping
 import ru.netology.nmedia.databinding.CardPostBinding
 
 typealias OnLikeListener = (post: Post) -> Unit
-typealias OnShareListener = (post: Post) -> Unit
+
 
 class PostAdapter (
     private val onLikeListener: OnLikeListener,
-    private val onShareListener: OnShareListener
+    private val onShareListener: OnLikeListener
     ): ListAdapter<Post, PostViewHolder>(PostDiffCallback()) {
 
 
@@ -34,7 +34,7 @@ class PostAdapter (
 class PostViewHolder (
     private val binding: CardPostBinding,
     private val onLikeListener: OnLikeListener,
-    private val onShareListener: OnShareListener
+    private val onShareListener: OnLikeListener
     ): RecyclerView.ViewHolder(binding.root) {
         fun bind (post: Post) {
             binding.apply {
