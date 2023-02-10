@@ -13,8 +13,10 @@
     <string name="description_likeButton" translatable="false">like</string>
     <string name="description_share_button" translatable="false">share</string>
     <string name="description_views" translatable="false">views</string>
+    <string name="description_edit_cancel" translatable="false">cancel editing</string>
     <string name="popup_menu_remove" translatable="true">Remove</string>
     <string name="popup_menu_edit" translatable="true">Edit</string>
     <string name="hint_controlPanel" translatable="true">Text</string>
     <string name="toast_text" translatable="true">Content can\'t be empty</string>
+    <string name="edit_text" translatable="true">Edit post</string>
 </resources>

@@ -9,4 +9,5 @@
     <string name="hint_controlPanel">Текст</string>
     <string name="toast_text">Контент не может быть пустым</string>
     <string name="popup_menu_edit">Редактировать</string>
+    <string name="edit_text">Редактирование поста</string>
 </resources>
