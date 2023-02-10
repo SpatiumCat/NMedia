@@ -19,6 +19,7 @@ class PostViewModel: ViewModel() {
     private val repository: PostRepository = PostRepositoryInMemoryImp()
     val data = repository.getAll()
     val edited = MutableLiveData(empty)
+    var isEditPanelHide = false
 
     fun save() {
         edited.value?.let {
@@ -44,4 +45,6 @@ class PostViewModel: ViewModel() {
     fun likeById(id: Long) = repository.likeById(id)
     fun shareById(id: Long) = repository.shareById(id)
     fun removeById(id: Long) = repository.removeById(id)
+
+
 }

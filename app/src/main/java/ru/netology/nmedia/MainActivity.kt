@@ -15,35 +15,46 @@ import java.util.*
 class MainActivity : AppCompatActivity() {
 
     val binding: ActivityMainBinding by lazy { ActivityMainBinding.inflate(layoutInflater) }
+    val viewModel by viewModels<PostViewModel>()
+    val adapter = PostAdapter(object : OnInteractionListener {
+
+        override fun onLike(post: Post) {
+            viewModel.likeById(post.id)
+        }
+
+        override fun onShare(post: Post) {
+            viewModel.shareById(post.id)
+        }
+
+        override fun onRemove(post: Post) {
+            viewModel.removeById(post.id)
+        }
+
+        override fun onEdit(post: Post) {
+            viewModel.edit(post)
+            showEditPanel()
+        }
+    })
+
+    fun showEditPanel() {
+        binding.editGroup.visibility = View.VISIBLE
+        viewModel.isEditPanelHide = true
+    }
+    fun hideEditPanel() {
+        binding.editGroup.visibility = View.GONE
+        viewModel.isEditPanelHide = false
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
 
-        val viewModel by viewModels<PostViewModel>()
-        val adapter = PostAdapter(object : OnInteractionListener {
-
-            override fun onLike(post: Post) {
-                viewModel.likeById(post.id)
-            }
-
-            override fun onShare(post: Post) {
-                viewModel.shareById(post.id)
-            }
-
-            override fun onRemove(post: Post) {
-                viewModel.removeById(post.id)
-            }
-
-            override fun onEdit(post: Post) {
-                viewModel.edit(post)
-            }
-        })
-
+        binding.editGroup.visibility = if (viewModel.isEditPanelHide) View.VISIBLE else View.GONE
         binding.list.adapter = adapter
         viewModel.data.observe(this) { posts ->
             adapter.submitList(posts)
         }
+
 
         viewModel.edited.observe(this) { post ->
             if (post.id == 0L) {
@@ -53,25 +64,34 @@ class MainActivity : AppCompatActivity() {
                 requestFocus()
                 setText(post.content)
             }
+        }
+        binding.editCancelButton.setOnClickListener {
+            binding.contentPanel.apply{
+                setText("")
+                clearFocus()
+                AndroidUtils.hideKeyboard(this)
+            }
+            hideEditPanel()
+        }
 
-            binding.save.setOnClickListener {
-                binding.contentPanel.apply {
-                    if (text.isNullOrBlank()) {
-                        Toast.makeText(
-                            this@MainActivity,
-                            R.string.toast_text,
-                            Toast.LENGTH_SHORT
-                        ).show()
-                        return@setOnClickListener
-                    }
-
-                    viewModel.changeContent(text.toString())
-                    viewModel.save()
-
-                    setText("")
-                    clearFocus()
-                    AndroidUtils.hideKeyboard(this)
+        binding.save.setOnClickListener {
+            binding.contentPanel.apply {
+                if (text.isNullOrBlank()) {
+                    Toast.makeText(
+                        this@MainActivity,
+                        R.string.toast_text,
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    return@setOnClickListener
                 }
+
+                viewModel.changeContent(text.toString())
+                viewModel.save()
+
+                setText("")
+                clearFocus()
+                AndroidUtils.hideKeyboard(this)
+               hideEditPanel()
             }
         }
     }
@@ -88,4 +108,5 @@ fun countMapping(count: Int): String {
             else -> ""
         }
 }
+
 
