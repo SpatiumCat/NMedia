@@ -19,7 +19,6 @@ class PostViewModel: ViewModel() {
     private val repository: PostRepository = PostRepositoryInMemoryImp()
     val data = repository.getAll()
     val edited = MutableLiveData(empty)
-    var isEditPanelHide = false
 
     fun save() {
         edited.value?.let {

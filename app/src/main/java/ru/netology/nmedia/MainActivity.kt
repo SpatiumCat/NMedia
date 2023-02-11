@@ -32,24 +32,15 @@ class MainActivity : AppCompatActivity() {
 
         override fun onEdit(post: Post) {
             viewModel.edit(post)
-            showEditPanel()
+            binding.editGroup.visibility = View.VISIBLE
         }
     })
-
-    fun showEditPanel() {
-        binding.editGroup.visibility = View.VISIBLE
-        viewModel.isEditPanelHide = true
-    }
-    fun hideEditPanel() {
-        binding.editGroup.visibility = View.GONE
-        viewModel.isEditPanelHide = false
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
 
-        binding.editGroup.visibility = if (viewModel.isEditPanelHide) View.VISIBLE else View.GONE
+        binding.editGroup.visibility = if (viewModel.edited.value?.id == 0L) View.GONE else View.VISIBLE
         binding.list.adapter = adapter
         viewModel.data.observe(this) { posts ->
             adapter.submitList(posts)
@@ -66,12 +57,13 @@ class MainActivity : AppCompatActivity() {
             }
         }
         binding.editCancelButton.setOnClickListener {
-            binding.contentPanel.apply{
+            viewModel.save()
+            binding.contentPanel.apply {
                 setText("")
                 clearFocus()
                 AndroidUtils.hideKeyboard(this)
             }
-            hideEditPanel()
+            binding.editGroup.visibility = View.GONE
         }
 
         binding.save.setOnClickListener {
@@ -91,7 +83,7 @@ class MainActivity : AppCompatActivity() {
                 setText("")
                 clearFocus()
                 AndroidUtils.hideKeyboard(this)
-               hideEditPanel()
+                binding.editGroup.visibility = View.GONE
             }
         }
     }
@@ -99,14 +91,14 @@ class MainActivity : AppCompatActivity() {
 
 
 fun countMapping(count: Int): String {
-        return when (count) {
-            in 0..1099 -> count.toString()
-            in 1100..9999 -> String.format(Locale.US, "%.1fk", (count / 100) / 10.0)
-            in 10000..999999 -> "${count / 1000}k"
-            in 1_000_000..9_999_999 -> String.format(Locale.US, "%.1fM", (count / 100_000) / 10.0)
-            in 10_000_000..Long.MAX_VALUE -> "${count / 1_000_000}M"
-            else -> ""
-        }
+    return when (count) {
+        in 0..1099 -> count.toString()
+        in 1100..9999 -> String.format(Locale.US, "%.1fk", (count / 100) / 10.0)
+        in 10000..999999 -> "${count / 1000}k"
+        in 1_000_000..9_999_999 -> String.format(Locale.US, "%.1fM", (count / 100_000) / 10.0)
+        in 10_000_000..Long.MAX_VALUE -> "${count / 1_000_000}M"
+        else -> ""
+    }
 }
 
 
