@@ -1,35 +1,94 @@
 package ru.netology.nmedia
 
 import android.os.Bundle
+import android.view.View
+import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import ru.netology.nmedia.adapter.OnInteractionListener
 import ru.netology.nmedia.adapter.PostAdapter
 import ru.netology.nmedia.databinding.ActivityMainBinding
+import ru.netology.nmedia.util.AndroidUtils
 import ru.netology.nmedia.viewmodel.PostViewModel
 import java.util.*
 
 class MainActivity : AppCompatActivity() {
 
     val binding: ActivityMainBinding by lazy { ActivityMainBinding.inflate(layoutInflater) }
+    val viewModel by viewModels<PostViewModel>()
+    val adapter = PostAdapter(object : OnInteractionListener {
+
+        override fun onLike(post: Post) {
+            viewModel.likeById(post.id)
+        }
+
+        override fun onShare(post: Post) {
+            viewModel.shareById(post.id)
+        }
+
+        override fun onRemove(post: Post) {
+            viewModel.removeById(post.id)
+        }
+
+        override fun onEdit(post: Post) {
+            viewModel.edit(post)
+            binding.editGroup.visibility = View.VISIBLE
+        }
+    })
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
 
-        val viewModel by viewModels<PostViewModel>()
-        val adapter = PostAdapter (
-            { post ->
-            viewModel.likeById(post.id) },
-            { post ->
-            viewModel.shareById(post.id) }
-        )
-
+        binding.editGroup.visibility = if (viewModel.edited.value?.id == 0L) View.GONE else View.VISIBLE
         binding.list.adapter = adapter
-        viewModel.data.observe (this) { posts ->
+        viewModel.data.observe(this) { posts ->
             adapter.submitList(posts)
+        }
+
+
+        viewModel.edited.observe(this) { post ->
+            if (post.id == 0L) {
+                return@observe
+            }
+            binding.contentPanel.apply {
+                requestFocus()
+                setText(post.content)
+            }
+        }
+        binding.editCancelButton.setOnClickListener {
+            viewModel.save()
+            binding.contentPanel.apply {
+                setText("")
+                clearFocus()
+                AndroidUtils.hideKeyboard(this)
+            }
+            binding.editGroup.visibility = View.GONE
+        }
+
+        binding.save.setOnClickListener {
+            binding.contentPanel.apply {
+                if (text.isNullOrBlank()) {
+                    Toast.makeText(
+                        this@MainActivity,
+                        R.string.toast_text,
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    return@setOnClickListener
+                }
+
+                viewModel.changeContent(text.toString())
+                viewModel.save()
+
+                setText("")
+                clearFocus()
+                AndroidUtils.hideKeyboard(this)
+                binding.editGroup.visibility = View.GONE
+            }
         }
     }
 }
+
 
 fun countMapping(count: Int): String {
     return when (count) {
@@ -41,3 +100,5 @@ fun countMapping(count: Int): String {
         else -> ""
     }
 }
+
+
