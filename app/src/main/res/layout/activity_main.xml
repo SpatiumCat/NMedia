@@ -76,25 +76,13 @@
         android:textStyle="normal"
         app:layout_constraintStart_toEndOf="@id/editImage"
         app:layout_constraintTop_toTopOf="@id/editImage"
-        app:layout_constraintBottom_toTopOf="@id/editContent"
+        app:layout_constraintBottom_toTopOf="@id/contentPanel"
         app:layout_constraintEnd_toStartOf="@id/editCancelButton"
         android:layout_marginStart="@dimen/common_spacing"
         android:layout_marginEnd="@dimen/common_spacing"
         android:lines="1" />
 
-    <TextView
-        android:id="@+id/editContent"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        tools:text="@string/about_netology"
-        app:layout_constraintStart_toEndOf="@id/editImage"
-        app:layout_constraintTop_toBottomOf="@id/editText"
-        app:layout_constraintBottom_toBottomOf="@id/editImage"
-        android:layout_marginStart="@dimen/common_spacing"
-        android:layout_marginEnd="@dimen/common_spacing"
-        app:layout_constraintEnd_toStartOf="@id/editCancelButton"
-        android:lines="1"
-        android:ellipsize="end"/>
+
 
     <ImageButton
         android:id="@+id/editCancelButton"
@@ -105,13 +93,14 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@id/editTopBarrier"
         android:contentDescription="@string/description_edit_cancel" />
-    
+
     <androidx.constraintlayout.widget.Group
         android:id="@+id/editGroup"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:visibility="gone"
-        app:constraint_referenced_ids="editImage, editTopBarrier, editCancelButton, editContent, editText" />
+        tools:visibility="visible"
+        app:constraint_referenced_ids="editImage, editTopBarrier, editCancelButton, editText" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
