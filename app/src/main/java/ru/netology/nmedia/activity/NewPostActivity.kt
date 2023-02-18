@@ -18,8 +18,11 @@ class NewPostActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
 
-        val textResult = intent?.getStringExtra(Intent.EXTRA_TEXT)
-        if (!textResult.isNullOrBlank()) binding.contentPanel.setText(textResult)
+        intent?.let {
+            val text = it.getStringExtra(Intent.EXTRA_TEXT)
+            if (!text.isNullOrBlank()) binding.contentPanel.setText(text)
+        }
+
 
 
         binding.buttonOk.setOnClickListener {
