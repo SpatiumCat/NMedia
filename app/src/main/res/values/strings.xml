@@ -14,9 +14,12 @@
     <string name="description_share_button" translatable="false">share</string>
     <string name="description_views" translatable="false">views</string>
     <string name="description_edit_cancel" translatable="false">cancel editing</string>
+    <string name="description_save_button" translatable="false">save</string>
     <string name="popup_menu_remove" translatable="true">Remove</string>
     <string name="popup_menu_edit" translatable="true">Edit</string>
     <string name="hint_controlPanel" translatable="true">Text</string>
-    <string name="toast_text" translatable="true">Content can\'t be empty</string>
+    <string name="error_empty_content" translatable="true">Content can\'t be empty</string>
     <string name="edit_text" translatable="true">Edit post</string>
+    <string name="chooser_share_post" translatable="true">Share post</string>
+
 </resources>

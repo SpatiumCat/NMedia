@@ -7,7 +7,8 @@
     <string name="post_author_avatar">Нетология</string>
     <string name="popup_menu_remove">Удалить</string>
     <string name="hint_controlPanel">Текст</string>
-    <string name="toast_text">Контент не может быть пустым</string>
+    <string name="error_empty_content">Контент не может быть пустым</string>
     <string name="popup_menu_edit">Редактировать</string>
     <string name="edit_text">Редактирование поста</string>
+    <string name="chooser_share_post">Поделиться постом</string>
 </resources>
