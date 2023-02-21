@@ -21,5 +21,6 @@
     <string name="error_empty_content" translatable="true">Content can\'t be empty</string>
     <string name="edit_text" translatable="true">Edit post</string>
     <string name="chooser_share_post" translatable="true">Share post</string>
+    <string name="chooser_video_post" translatable="false">Video</string>
 
 </resources>
