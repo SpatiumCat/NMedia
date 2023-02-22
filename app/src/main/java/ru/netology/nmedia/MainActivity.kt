@@ -1,5 +1,6 @@
 package ru.netology.nmedia
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -45,14 +46,10 @@ class MainActivity : AppCompatActivity() {
                 startActivity(shareIntent)
             }
 
+            @SuppressLint("SuspiciousIndentation")
             override fun onPlay(post:Post) {
-                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(post.video)).apply {
-                    type = "*/*"
-                }
-                val videoIntent = Intent.createChooser(intent, getString(R.string.chooser_video_post) )
-                if (intent.resolveActivity(getPackageManager()) != null) {
-                    startActivity(videoIntent);
-                }
+                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(post.video))
+                    startActivity(intent)
             }
 
             override fun onRemove(post: Post) {
