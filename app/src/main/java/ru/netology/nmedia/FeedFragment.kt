@@ -4,30 +4,31 @@ import android.annotation.SuppressLint
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import androidx.activity.viewModels
-import androidx.appcompat.app.AppCompatActivity
-import ru.netology.nmedia.activity.NewPostActivity
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
+import ru.netology.nmedia.activity.NewPostFragment.Companion.textArg
 import ru.netology.nmedia.adapter.OnInteractionListener
 import ru.netology.nmedia.adapter.PostAdapter
-import ru.netology.nmedia.databinding.ActivityMainBinding
+import ru.netology.nmedia.databinding.FragmentFeedBinding
 import ru.netology.nmedia.viewmodel.PostViewModel
 import java.util.*
 
-class MainActivity : AppCompatActivity() {
-
-    val binding: ActivityMainBinding by lazy { ActivityMainBinding.inflate(layoutInflater) }
-    val viewModel by viewModels<PostViewModel>()
+class FeedFragment : Fragment() {
 
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(binding.root)
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
 
-        val newPostContract = registerForActivityResult(NewPostActivity.NewPostContract){ result ->
-            result ?: return@registerForActivityResult
-            viewModel.changeContent(result)
-            viewModel.save()
-        }
+        val binding = FragmentFeedBinding.inflate(layoutInflater, container, false)
+        val viewModel: PostViewModel by viewModels(ownerProducer = ::requireParentFragment)
+
 
         val adapter = PostAdapter(object : OnInteractionListener {
 
@@ -42,14 +43,24 @@ class MainActivity : AppCompatActivity() {
                     putExtra(Intent.EXTRA_TEXT, post.content)
                     type = "text/plain"
                 }
-                val shareIntent = Intent.createChooser(intent, getString(R.string.chooser_share_post))
+                val shareIntent =
+                    Intent.createChooser(intent, getString(R.string.chooser_share_post))
                 startActivity(shareIntent)
             }
 
             @SuppressLint("SuspiciousIndentation")
-            override fun onPlay(post:Post) {
+            override fun onPlay(post: Post) {
                 val intent = Intent(Intent.ACTION_VIEW, Uri.parse(post.video))
-                    startActivity(intent)
+                startActivity(intent)
+            }
+
+            override fun onViewPost(post: Post) {
+                findNavController().navigate(
+                    R.id.action_feedFragment_to_postFragment,
+                    Bundle().apply {
+                        textArg = post.id.toString()
+                    }
+                )
             }
 
             override fun onRemove(post: Post) {
@@ -58,24 +69,29 @@ class MainActivity : AppCompatActivity() {
 
             override fun onEdit(post: Post) {
                 viewModel.edit(post)
-                newPostContract.launch(post.content)
+                findNavController().navigate(
+                    R.id.action_feedFragment_to_newPostFragment,
+                    Bundle().apply {
+                        textArg = post.content
+                    }
+                )
             }
         })
 
         binding.list.adapter = adapter
-        viewModel.data.observe(this) { posts ->
+        viewModel.data.observe(viewLifecycleOwner) { posts ->
             val newPost = adapter.currentList.size < posts.size
             adapter.submitList(posts) {
-            if (newPost) binding.list.smoothScrollToPosition(0)
+                if (newPost) binding.list.smoothScrollToPosition(0)
             }
         }
 
-        binding.add.setOnClickListener{
-            newPostContract.launch(null)
+        binding.add.setOnClickListener {
+            findNavController().navigate(R.id.action_feedFragment_to_newPostFragment)
         }
+        return binding.root
     }
 }
-
 
 
 fun countMapping(count: Int): String {
