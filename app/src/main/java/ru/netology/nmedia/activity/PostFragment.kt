@@ -64,17 +64,22 @@ class PostFragment: Fragment() {
                 startActivity(intent)
             }
 
-            override fun onViewPost(post: Post) {
-                TODO("Not yet implemented")
-            }
+            override fun onViewPost(post: Post) {}
 
         })
+
 
         val currentPost = arguments?.textArg?.let {
             viewModel.data.value?.find { post -> post.id == it.toLong()  }
         }
         if (currentPost != null) {
             viewHolder.bind(currentPost)
+        }
+        viewModel.data.observe(viewLifecycleOwner){
+            val updatedPost = it.find { post -> post.id == currentPost?.id }
+            if (updatedPost != null) {
+                viewHolder.bind(updatedPost)
+            }
         }
         return binding.root
         }
