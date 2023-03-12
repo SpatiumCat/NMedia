@@ -66,17 +66,15 @@
         android:layout_height="wrap_content"
         app:barrierDirection="bottom"
         app:constraint_referenced_ids="avatarImageView, textPublished, menuButton, author"
-        tools:layout_editor_absoluteX="16dp"
-        tools:layout_editor_absoluteY="80dp" />
+         />
 
-    <androidx.constraintlayout.widget.Barrier
-        android:id="@+id/barrierOnBottom"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:barrierDirection="bottom"
-        app:constraint_referenced_ids="content"
-        tools:layout_editor_absoluteX="16dp"
-        tools:layout_editor_absoluteY="279dp" />
+<!--    <androidx.constraintlayout.widget.Barrier-->
+<!--        android:id="@+id/barrierUnderContent"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        app:barrierDirection="bottom"-->
+<!--        app:constraint_referenced_ids="content"-->
+<!--        />-->
 
     <TextView
         android:id="@+id/content"
@@ -84,10 +82,57 @@
         android:layout_height="wrap_content"
         android:text="@string/about_netology"
         app:layout_constraintTop_toBottomOf="@id/barrierOnTop"
-        app:layout_constraintBottom_toTopOf="@id/barrierOnBottom"
+        app:layout_constraintBottom_toTopOf="@id/imageVideoButton"
         android:layout_marginTop="@dimen/common_spacing"
         android:layout_marginBottom="@dimen/common_spacing"
         />
+
+   <ImageButton
+       android:id="@+id/imageVideoButton"
+       android:layout_width="wrap_content"
+       android:layout_height="wrap_content"
+       android:src="@drawable/youtube_logo"
+       app:layout_constraintStart_toStartOf="parent"
+       app:layout_constraintEnd_toEndOf="parent"
+       app:layout_constraintBottom_toTopOf="@id/barrierUnderVideo"
+       app:layout_constraintTop_toBottomOf="@id/content"
+       android:layout_margin="@dimen/common_spacing"
+       android:scaleType="fitCenter"
+       android:adjustViewBounds="true"
+       android:background="@android:color/transparent"/>
+
+    <ImageButton
+        android:id="@+id/playButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_play_video_48"
+        app:layout_constraintStart_toStartOf="@id/imageVideoButton"
+        app:layout_constraintEnd_toEndOf="@id/imageVideoButton"
+        app:layout_constraintTop_toTopOf="@id/imageVideoButton"
+        app:layout_constraintBottom_toBottomOf="@id/imageVideoButton"
+        android:background="@android:color/transparent" />
+
+
+
+
+
+    <androidx.constraintlayout.widget.Barrier
+        android:id="@+id/barrierUnderVideo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:constraint_referenced_ids="imageVideoButton"
+        app:barrierDirection="bottom" />
+
+    <androidx.constraintlayout.widget.Group
+        android:id="@+id/videoGroup"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        tools:visibility="visible"
+        android:visibility="gone"
+        app:constraint_referenced_ids="imageVideoButton, barrierUnderVideo, playButton"/>
+
+
+
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/like"
@@ -95,7 +140,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/barrierOnBottom"
+        app:layout_constraintTop_toBottomOf="@id/barrierUnderVideo"
         app:layout_constraintEnd_toStartOf="@id/share"
         android:layout_marginTop="@dimen/common_spacing"
         android:contentDescription="@string/description_likeButton"
@@ -117,7 +162,7 @@
         android:minWidth="0dp"
         android:minHeight="0dp"
         app:layout_constraintStart_toEndOf="@id/like"
-        app:layout_constraintTop_toBottomOf="@id/barrierOnBottom"
+        app:layout_constraintTop_toBottomOf="@id/barrierUnderVideo"
         tools:text="100" />
 
     <ImageView
@@ -125,7 +170,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:layout_constraintEnd_toStartOf="@id/viewsCount"
-        app:layout_constraintTop_toBottomOf="@id/barrierOnBottom"
+        app:layout_constraintTop_toBottomOf="@id/barrierUnderVideo"
         android:layout_marginTop="@dimen/common_spacing"
         android:layout_marginEnd="@dimen/margin_near_imageButton"
         android:src="@drawable/ic_baseline_remove_red_eye_24"
@@ -139,7 +184,7 @@
         android:id="@+id/viewsCount"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/barrierOnBottom"
+        app:layout_constraintTop_toBottomOf="@id/barrierUnderVideo"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toBottomOf="@id/viewsImage"
         tools:text="@string/views_count"

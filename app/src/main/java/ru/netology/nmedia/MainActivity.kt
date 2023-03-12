@@ -1,14 +1,15 @@
 package ru.netology.nmedia
 
+import android.annotation.SuppressLint
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
-import android.view.View
-import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import ru.netology.nmedia.activity.NewPostActivity
 import ru.netology.nmedia.adapter.OnInteractionListener
 import ru.netology.nmedia.adapter.PostAdapter
 import ru.netology.nmedia.databinding.ActivityMainBinding
-import ru.netology.nmedia.util.AndroidUtils
 import ru.netology.nmedia.viewmodel.PostViewModel
 import java.util.*
 
@@ -16,78 +17,65 @@ class MainActivity : AppCompatActivity() {
 
     val binding: ActivityMainBinding by lazy { ActivityMainBinding.inflate(layoutInflater) }
     val viewModel by viewModels<PostViewModel>()
-    val adapter = PostAdapter(object : OnInteractionListener {
 
-        override fun onLike(post: Post) {
-            viewModel.likeById(post.id)
-        }
-
-        override fun onShare(post: Post) {
-            viewModel.shareById(post.id)
-        }
-
-        override fun onRemove(post: Post) {
-            viewModel.removeById(post.id)
-        }
-
-        override fun onEdit(post: Post) {
-            viewModel.edit(post)
-            binding.editGroup.visibility = View.VISIBLE
-        }
-    })
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
 
-        binding.editGroup.visibility = if (viewModel.edited.value?.id == 0L) View.GONE else View.VISIBLE
+        val newPostContract = registerForActivityResult(NewPostActivity.NewPostContract){ result ->
+            result ?: return@registerForActivityResult
+            viewModel.changeContent(result)
+            viewModel.save()
+        }
+
+        val adapter = PostAdapter(object : OnInteractionListener {
+
+            override fun onLike(post: Post) {
+                viewModel.likeById(post.id)
+            }
+
+            override fun onShare(post: Post) {
+                viewModel.shareById(post.id)
+                val intent = Intent().apply {
+                    action = Intent.ACTION_SEND
+                    putExtra(Intent.EXTRA_TEXT, post.content)
+                    type = "text/plain"
+                }
+                val shareIntent = Intent.createChooser(intent, getString(R.string.chooser_share_post))
+                startActivity(shareIntent)
+            }
+
+            @SuppressLint("SuspiciousIndentation")
+            override fun onPlay(post:Post) {
+                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(post.video))
+                    startActivity(intent)
+            }
+
+            override fun onRemove(post: Post) {
+                viewModel.removeById(post.id)
+            }
+
+            override fun onEdit(post: Post) {
+                viewModel.edit(post)
+                newPostContract.launch(post.content)
+            }
+        })
+
         binding.list.adapter = adapter
         viewModel.data.observe(this) { posts ->
-            adapter.submitList(posts)
-        }
-
-
-        viewModel.edited.observe(this) { post ->
-            if (post.id == 0L) {
-                return@observe
-            }
-            binding.contentPanel.apply {
-                requestFocus()
-                setText(post.content)
+            val newPost = adapter.currentList.size < posts.size
+            adapter.submitList(posts) {
+            if (newPost) binding.list.smoothScrollToPosition(0)
             }
         }
-        binding.editCancelButton.setOnClickListener {
-            viewModel.save()
-            binding.contentPanel.apply {
-                setText("")
-                clearFocus()
-                AndroidUtils.hideKeyboard(this)
-            }
-            binding.editGroup.visibility = View.GONE
-        }
 
-        binding.save.setOnClickListener {
-            binding.contentPanel.apply {
-                if (text.isNullOrBlank()) {
-                    Toast.makeText(
-                        this@MainActivity,
-                        R.string.toast_text,
-                        Toast.LENGTH_SHORT
-                    ).show()
-                    return@setOnClickListener
-                }
-
-                viewModel.changeContent(text.toString())
-                viewModel.save()
-
-                setText("")
-                clearFocus()
-                AndroidUtils.hideKeyboard(this)
-                binding.editGroup.visibility = View.GONE
-            }
+        binding.add.setOnClickListener{
+            newPostContract.launch(null)
         }
     }
 }
+
 
 
 fun countMapping(count: Int): String {

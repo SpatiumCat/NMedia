@@ -1,7 +1,8 @@
 package ru.netology.nmedia.viewmodel
 
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
 import ru.netology.nmedia.Post
 import ru.netology.nmedia.repository.PostRepository
 import ru.netology.nmedia.repository.PostRepositoryInMemoryImp
@@ -11,12 +12,13 @@ private val empty = Post (
     content = "",
     author = "",
     likedByMe = false,
-    published = ""
+    published = "",
+    video = ""
         )
 
-class PostViewModel: ViewModel() {
+class PostViewModel(application: Application): AndroidViewModel(application) {
 
-    private val repository: PostRepository = PostRepositoryInMemoryImp()
+    private val repository: PostRepository = PostRepositoryInMemoryImp(application)
     val data = repository.getAll()
     val edited = MutableLiveData(empty)
 
