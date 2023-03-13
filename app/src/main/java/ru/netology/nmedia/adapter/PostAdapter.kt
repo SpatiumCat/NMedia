@@ -20,6 +20,7 @@ interface OnInteractionListener {
     fun onRemove(post: Post)
     fun onEdit(post: Post)
     fun onPlay(post: Post)
+    fun onViewPost(post: Post)
 }
 
 
@@ -88,6 +89,10 @@ class PostViewHolder (
                             }
                         }
                     }.show()
+                }
+
+                binding.root.setOnClickListener {
+                    onInteractionListener.onViewPost(post)
                 }
             }
         }

@@ -10,13 +10,12 @@
         android:id="@+id/contentPanel"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:gravity="top"
-        android:padding="@dimen/common_spacing"
-        android:hint="@string/hint_controlPanel"
-        android:inputType="textMultiLine"
         android:background="@android:color/transparent"
+        android:gravity="top"
+        android:hint="@string/hint_controlPanel"
         android:importantForAutofill="no"
-         />
+        android:inputType="textMultiLine"
+        android:padding="@dimen/common_spacing" />
 
     <com.google.android.material.bottomappbar.BottomAppBar
         android:id="@+id/bottomAppBar"
@@ -30,7 +29,7 @@
         android:id="@+id/buttonOk"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:srcCompat="@drawable/ic_add_24dp"
+        app:srcCompat="@drawable/ic_done_24"
         app:layout_anchor="@id/bottomAppBar"
         android:contentDescription="@string/description_save_button"
         />
