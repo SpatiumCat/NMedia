@@ -8,8 +8,8 @@ import kotlinx.coroutines.internal.synchronized
 import ru.netology.nmedia.dao.PostDao
 import ru.netology.nmedia.dao.PostDaoImpl
 
-class AppDb private constructor(db: SQLiteDatabase, dbDraft: SQLiteDatabase) {
-    val postDao: PostDao = PostDaoImpl(db, dbDraft)
+class AppDb private constructor(db: SQLiteDatabase) {
+    val postDao: PostDao = PostDaoImpl(db)
 
     companion object {
         @Volatile
@@ -20,8 +20,7 @@ class AppDb private constructor(db: SQLiteDatabase, dbDraft: SQLiteDatabase) {
         fun getInstance(context: Context): AppDb {
             return instance ?: synchronized(this) {
                 instance ?: AppDb(
-                    buildDatabase(context, arrayOf(PostDaoImpl.DDL_Post)),
-                    buildDatabase(context, arrayOf(PostDaoImpl.DDL_Draft))
+                    buildDatabase(context, arrayOf(PostDaoImpl.DDL_Post, PostDaoImpl.DDL_Draft))
                 ).also { instance = it }
             }
         }

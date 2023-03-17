@@ -5,10 +5,7 @@ import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
 import ru.netology.nmedia.Post
 
-class PostDaoImpl(
-    private val db: SQLiteDatabase,
-    private val dbDraft: SQLiteDatabase
-) : PostDao {
+class PostDaoImpl(private val db: SQLiteDatabase) : PostDao {
 
     companion object {
         val DDL_Post = """
@@ -152,7 +149,7 @@ class PostDaoImpl(
     }
 
     override fun getDraft(): String {
-        dbDraft.query(
+        db.query(
             PostDraftColumns.TABLE,
             PostDraftColumns.ALL_COLUMNS,
             null,
@@ -173,8 +170,8 @@ class PostDaoImpl(
         val values = ContentValues().apply {
             put(PostDraftColumns.COLUMN_CONTENT, content)
         }
-        dbDraft.replace(PostDraftColumns.TABLE, null, values)
-        dbDraft.query(
+        db.replace(PostDraftColumns.TABLE, null, values)
+        db.query(
             PostDraftColumns.TABLE,
             PostDraftColumns.ALL_COLUMNS,
             null,
