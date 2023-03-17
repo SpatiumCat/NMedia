@@ -4,23 +4,27 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import ru.netology.nmedia.Post
+import ru.netology.nmedia.db.AppDb
 import ru.netology.nmedia.repository.PostRepository
-import ru.netology.nmedia.repository.PostRepositoryInMemoryImp
+import ru.netology.nmedia.repository.PostRepositorySQLiteImpl
 
-private val empty = Post (
+private val empty = Post(
     id = 0,
     content = "",
     author = "",
     likedByMe = false,
     published = "",
     video = ""
-        )
+)
 
-class PostViewModel(application: Application): AndroidViewModel(application) {
+class PostViewModel(application: Application) : AndroidViewModel(application) {
 
-    private val repository: PostRepository = PostRepositoryInMemoryImp(application)
+    private val repository: PostRepository = PostRepositorySQLiteImpl(
+        AppDb.getInstance(application).postDao
+    )
     val data = repository.getAll()
-    val edited = MutableLiveData(empty)
+    private val edited = MutableLiveData(empty)
+    var draft = repository.getDraft()
 
     fun save() {
         edited.value?.let {
@@ -46,6 +50,6 @@ class PostViewModel(application: Application): AndroidViewModel(application) {
     fun likeById(id: Long) = repository.likeById(id)
     fun shareById(id: Long) = repository.shareById(id)
     fun removeById(id: Long) = repository.removeById(id)
-
+    fun saveDraft(content: String) = repository.saveDraft(content)
 
 }
