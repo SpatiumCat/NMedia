@@ -23,7 +23,7 @@ class PostDaoImpl(private val db: SQLiteDatabase) : PostDao {
 
         val DDL_Draft = """
             CREATE TABLE ${PostDraftColumns.TABLE} (
-            ${PostDraftColumns.COLUMN_CONTENT} TEXT NOT NULL DEFAULT ""
+            ${PostDraftColumns.COLUMN_CONTENT} TEXT NOT NULL DEFAULT "empty"
             );
         """.trimIndent()
     }
@@ -164,12 +164,10 @@ class PostDaoImpl(private val db: SQLiteDatabase) : PostDao {
     }
 
     override fun saveDraft(content: String): String {
-        if (content.isBlank()) {
-            return ""
-        }
         val values = ContentValues().apply {
             put(PostDraftColumns.COLUMN_CONTENT, content)
         }
+        db.delete(PostDraftColumns.TABLE, null, null)
         db.replace(PostDraftColumns.TABLE, null, values)
         db.query(
             PostDraftColumns.TABLE,

@@ -15,7 +15,9 @@ class PostRepositorySQLiteImpl(private val dao: PostDao) : PostRepository {
     init {
         posts = dao.getAll()
         data.value = posts
-        draft = dao.getDraft()
+//        if (!dao.getDraft().isNullOrBlank()) {
+//            draft = dao.getDraft()
+//        }
     }
 
     override fun getAll(): LiveData<List<Post>> = data
@@ -60,10 +62,7 @@ class PostRepositorySQLiteImpl(private val dao: PostDao) : PostRepository {
     }
 
     override fun saveDraft(content: String) {
-        if (content.isNotBlank()) {
-            draft = content
-            dao.saveDraft(content)
-        }
+            draft = dao.saveDraft(content)
     }
 
     override fun getDraft(): String {

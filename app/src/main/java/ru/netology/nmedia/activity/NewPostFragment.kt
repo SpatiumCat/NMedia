@@ -24,6 +24,7 @@ class NewPostFragment : Fragment() {
 
         val binding = FragmentNewPostBinding.inflate(inflater, container, false)
         val viewModel: PostViewModel by viewModels(ownerProducer = ::requireParentFragment)
+        arguments?.textArg?: binding.contentPanel.setText(viewModel.draft)
         arguments?.textArg?.let(binding.contentPanel::setText)
         binding.contentPanel.requestFocus()
 
@@ -37,12 +38,12 @@ class NewPostFragment : Fragment() {
         }
 
         requireActivity().onBackPressedDispatcher.addCallback(this) {
-            isEnabled = true
+          //  isEnabled = true
             val text = binding.contentPanel.text.toString()
             if (text.isNotBlank()) {
-                viewModel.draft = text
                 viewModel.saveDraft(text)
             }
+            findNavController().navigateUp()
         }
         return binding.root
     }
