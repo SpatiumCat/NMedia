@@ -33,6 +33,7 @@ class NewPostFragment : Fragment() {
             if (text.isNotBlank()) {
                 viewModel.changeContent(text)
                 viewModel.save()
+
                 findNavController().navigateUp()
             }
         }

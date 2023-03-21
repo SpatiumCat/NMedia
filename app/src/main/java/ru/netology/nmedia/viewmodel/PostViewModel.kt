@@ -31,6 +31,7 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
             repository.save(it)
         }
         edited.value = empty
+        saveDraft("")
     }
 
     fun edit(post: Post) {
@@ -54,5 +55,6 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
         draft = content
         repository.saveDraft(content)
     }
+
 
 }
