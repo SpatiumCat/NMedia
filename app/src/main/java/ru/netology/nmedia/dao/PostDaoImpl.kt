@@ -23,7 +23,7 @@ class PostDaoImpl(private val db: SQLiteDatabase) : PostDao {
 
         val DDL_Draft = """
             CREATE TABLE ${PostDraftColumns.TABLE} (
-            ${PostDraftColumns.COLUMN_CONTENT} TEXT NOT NULL DEFAULT "empty"
+            ${PostDraftColumns.COLUMN_CONTENT} TEXT NOT NULL DEFAULT (empty)
             );
         """.trimIndent()
     }
@@ -148,7 +148,7 @@ class PostDaoImpl(private val db: SQLiteDatabase) : PostDao {
         )
     }
 
-    override fun getDraft(): String {
+    override fun getDraft(): String? {
         db.query(
             PostDraftColumns.TABLE,
             PostDraftColumns.ALL_COLUMNS,
@@ -158,8 +158,11 @@ class PostDaoImpl(private val db: SQLiteDatabase) : PostDao {
             null,
             null
         ).use {
-            it.moveToNext()
-            return mapDraft(it)
+            return if (it.moveToNext()) {
+                mapDraft(it)
+            } else {
+                null
+            }
         }
     }
 

@@ -9,5 +9,5 @@ interface PostDao {
     fun removeById(id: Long)
     fun shareById(id: Long)
     fun saveDraft (content: String): String
-    fun getDraft (): String
+    fun getDraft (): String?
 }

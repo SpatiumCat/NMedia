@@ -15,9 +15,9 @@ class PostRepositorySQLiteImpl(private val dao: PostDao) : PostRepository {
     init {
         posts = dao.getAll()
         data.value = posts
-//        if (!dao.getDraft().isNullOrBlank()) {
-//            draft = dao.getDraft()
-//        }
+        dao.getDraft()?.let {
+            draft = it
+        }
     }
 
     override fun getAll(): LiveData<List<Post>> = data
