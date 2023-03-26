@@ -4,6 +4,7 @@ import androidx.lifecycle.*
 import ru.netology.nmedia.Post
 import ru.netology.nmedia.dao.DraftDao
 import ru.netology.nmedia.dao.PostDao
+import ru.netology.nmedia.entity.DraftEntity
 import ru.netology.nmedia.entity.PostEntity
 
 
@@ -30,11 +31,15 @@ class PostRepositoryImpl(private val postDao: PostDao, private val draftDao: Dra
       postDao.save(PostEntity.fromDto(post))
     }
 
-    override fun saveDraft(content: String) {
-        draftDao.saveDraft(content)
+    override fun insertDraft(content: String) {
+        draftDao.insertDraft(DraftEntity.fromDtoDraft(content))
     }
 
-    override fun getDraft(): String {
+    override fun deleteDraft() {
+        draftDao.deleteDraft()
+    }
+
+    override fun getDraft(): String? {
         return draftDao.getDraft()
     }
 }
