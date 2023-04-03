@@ -9,6 +9,8 @@ interface PostRepository {
     fun shareById(id: Long)
     fun removeById(id: Long)
     fun save(post: Post)
-    fun saveDraft(content: String)
-    fun getDraft(): String
+//    fun saveDraft(content: String)
+    fun insertDraft(content: String)
+    fun deleteDraft()
+    fun getDraft(): String?
 }

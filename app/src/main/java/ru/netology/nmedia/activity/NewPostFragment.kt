@@ -33,13 +33,11 @@ class NewPostFragment : Fragment() {
             if (text.isNotBlank()) {
                 viewModel.changeContent(text)
                 viewModel.save()
-
                 findNavController().navigateUp()
             }
         }
 
         requireActivity().onBackPressedDispatcher.addCallback(this) {
-          //  isEnabled = true
             val text = binding.contentPanel.text.toString()
             if (text.isNotBlank()) {
                 viewModel.saveDraft(text)
