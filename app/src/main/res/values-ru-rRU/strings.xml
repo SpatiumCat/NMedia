@@ -11,4 +11,5 @@
     <string name="popup_menu_edit">Редактировать</string>
     <string name="edit_text">Редактирование поста</string>
     <string name="chooser_share_post">Поделиться постом</string>
+    <string name="google_api_unavailable">Google Api Недоступен</string>
 </resources>
