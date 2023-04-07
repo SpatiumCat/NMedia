@@ -38,9 +38,16 @@ class FCMService : FirebaseMessagingService() {
         message.data[action]?.let {
             try {
                 when (Action.valueOf(it)) {
-                    Action.LIKE -> handleLike(gson.fromJson(message.data[content], Like::class.java))
+                    Action.LIKE -> handleLike(
+                        gson.fromJson(
+                            message.data[content],
+                            Like::class.java
+                        )
+                    )
                 }
-            } catch (e: IllegalArgumentException) {return}
+            } catch (e: IllegalArgumentException) {
+                return
+            }
         }
     }
 
