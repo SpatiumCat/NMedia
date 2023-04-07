@@ -37,7 +37,7 @@ class NewPostFragment : Fragment() {
             }
         }
 
-        requireActivity().onBackPressedDispatcher.addCallback(this) {
+        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner) {
             val text = binding.contentPanel.text.toString()
             if (text.isNotBlank()) {
                 viewModel.saveDraft(text)
