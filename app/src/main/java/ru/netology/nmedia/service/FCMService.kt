@@ -9,6 +9,7 @@ import androidx.core.app.NotificationManagerCompat
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import com.google.gson.Gson
+import ru.netology.nmedia.Post
 import ru.netology.nmedia.R
 import kotlin.random.Random
 
@@ -38,12 +39,8 @@ class FCMService : FirebaseMessagingService() {
         message.data[action]?.let {
             try {
                 when (Action.valueOf(it)) {
-                    Action.LIKE -> handleLike(
-                        gson.fromJson(
-                            message.data[content],
-                            Like::class.java
-                        )
-                    )
+                    Action.LIKE -> handleLike(gson.fromJson(message.data[content], Like::class.java))
+                    Action.POST -> handlePost(gson.fromJson(message.data[content], Post::class.java))
                 }
             } catch (e: IllegalArgumentException) {
                 return
@@ -71,10 +68,25 @@ class FCMService : FirebaseMessagingService() {
         NotificationManagerCompat.from(this)
             .notify(Random.nextInt(100_000), notification)
     }
+
+    private fun handlePost(post: Post) {
+        val notification = NotificationCompat.Builder(this, channelId)
+            .setSmallIcon(R.drawable.ic_notification)
+            .setContentTitle(
+                getString(R.string.notification_user_posted, post.author)
+            )
+            .setStyle(NotificationCompat.BigTextStyle().bigText(post.content))
+            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+            .build()
+
+        NotificationManagerCompat.from(this)
+            .notify(Random.nextInt(100_000), notification)
+    }
 }
 
 enum class Action {
     LIKE,
+    POST,
 }
 
 data class Like(
