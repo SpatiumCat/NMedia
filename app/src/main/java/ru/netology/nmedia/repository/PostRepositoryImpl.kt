@@ -1,6 +1,6 @@
 package ru.netology.nmedia.repository
 
-import androidx.lifecycle.*
+
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import okhttp3.MediaType.Companion.toMediaType
@@ -8,10 +8,6 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import ru.netology.nmedia.Post
-import ru.netology.nmedia.dao.DraftDao
-import ru.netology.nmedia.dao.PostDao
-import ru.netology.nmedia.entity.DraftEntity
-import ru.netology.nmedia.entity.PostEntity
 import java.util.concurrent.TimeUnit
 
 
@@ -51,14 +47,15 @@ class PostRepositoryImpl : PostRepository {
     }
 
     override fun save(post: Post) {
-        val request: Request = Request.Builder()
+        return Request.Builder()
             .url("$BASE_URL/api/slow/posts")
             .post(gson.toJson(post).toRequestBody(jsonType))
             .build()
+            .let(client::newCall)
+            .execute()
+            .close()
 
-            client.newCall(request)
-                .execute()
-                .close()
+
     }
 
 //    override fun insertDraft(content: String) {
