@@ -24,7 +24,7 @@ class NewPostFragment : Fragment() {
 
         val binding = FragmentNewPostBinding.inflate(inflater, container, false)
         val viewModel: PostViewModel by viewModels(ownerProducer = ::requireParentFragment)
-        arguments?.textArg?: binding.contentPanel.setText(viewModel.draft)
+//        arguments?.textArg?: binding.contentPanel.setText(viewModel.draft)
         arguments?.textArg?.let(binding.contentPanel::setText)
         binding.contentPanel.requestFocus()
 
@@ -33,14 +33,18 @@ class NewPostFragment : Fragment() {
             if (text.isNotBlank()) {
                 viewModel.changeContent(text)
                 viewModel.save()
-                findNavController().navigateUp()
             }
+        }
+
+        viewModel.postCreated.observe(viewLifecycleOwner) {
+            viewModel.loadPosts()
+            findNavController().navigateUp()
         }
 
         requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner) {
             val text = binding.contentPanel.text.toString()
             if (text.isNotBlank()) {
-                viewModel.saveDraft(text)
+//                viewModel.saveDraft(text)
             }
             findNavController().navigateUp()
         }

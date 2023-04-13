@@ -2,11 +2,16 @@ package ru.netology.nmedia.viewmodel
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import ru.netology.nmedia.Post
 import ru.netology.nmedia.db.AppDb
+import ru.netology.nmedia.model.FeedModel
 import ru.netology.nmedia.repository.PostRepository
 import ru.netology.nmedia.repository.PostRepositoryImpl
+import ru.netology.nmedia.util.SingleLiveEvent
+import java.io.IOException
+import kotlin.concurrent.thread
 
 private val empty = Post(
     id = 0,
@@ -20,18 +25,44 @@ private val empty = Post(
 class PostViewModel(application: Application) : AndroidViewModel(application) {
 
     private val repository: PostRepository = PostRepositoryImpl(
-        AppDb.getInstance(application).postDao(), AppDb.getInstance(application).draftDao()
+//       AppDb.getInstance(application).draftDao()
     )
-    val data = repository.getAll()
+    private val _data = MutableLiveData<FeedModel>()
+    val data: LiveData<FeedModel>
+        get() = _data
+
     private val edited = MutableLiveData(empty)
-    var draft = repository.getDraft() ?: ""
+
+    private val _postCreated = SingleLiveEvent<Unit>()
+    val postCreated: LiveData<Unit>
+        get() = _postCreated
+   // var draft = repository.getDraft() ?: ""
+
+    init {
+        loadPosts()
+    }
+
+    fun loadPosts () {
+        _data.value = FeedModel(loading = true)
+        thread {
+            try {
+                val posts = repository.getAll()
+                FeedModel(empty = posts.isEmpty(), posts = posts)
+            } catch (e: Exception) {
+                FeedModel(error = true)
+            }.also(_data::postValue)
+        }
+    }
 
     fun save() {
         edited.value?.let {
-            repository.save(it)
+            thread {
+                repository.save(it)
+                _postCreated.postValue(Unit)
+            }
         }
         edited.value = empty
-       saveDraft("")
+//       saveDraft("")
     }
 
     fun edit(post: Post) {
@@ -48,14 +79,40 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun likeById(id: Long) = repository.likeById(id)
-    fun shareById(id: Long) = repository.shareById(id)
-    fun removeById(id: Long) = repository.removeById(id)
-    fun saveDraft(content: String) {
-        repository.deleteDraft()
-        repository.insertDraft(content)
-        draft = content
+    fun likeById(id: Long) {
+        thread {
+            repository.likeById(id)
+        }
     }
 
 
-}
+    fun shareById(id: Long) {
+        thread {
+            repository.shareById(id)
+        }
+    }
+
+    fun removeById(id: Long) {
+        thread {
+            val old = _data.value?.posts.orEmpty()
+            _data.postValue(
+                _data.value?.copy(posts = _data.value?.posts.orEmpty().filter { it.id != id })
+            )
+            try {
+                repository.removeById(id)
+            } catch (e: IOException) {
+                _data.postValue(_data.value?.copy(posts = old))
+            }
+        }
+    }
+
+
+
+
+//    fun saveDraft(content: String) {
+//        repository.deleteDraft()
+//        repository.insertDraft(content)
+//        draft = content
+//    }
+    }
+
