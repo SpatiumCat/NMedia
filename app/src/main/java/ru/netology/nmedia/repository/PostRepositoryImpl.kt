@@ -39,24 +39,20 @@ class PostRepositoryImpl(private val draftDao: DraftDao) : PostRepository {
 
 
     override fun likeById(id: Long): Post {
-        val request = Request.Builder()
+        return Request.Builder()
             .url("$BASE_URL/api/slow/posts/$id/likes")
             .post(gson.toJson(id).toRequestBody(jsonType))
-            .build()
-
-            return client.newCall(request)
+            .build().let(client::newCall)
             .execute()
             .let { it.body?.string() ?: throw RuntimeException("body is null") }
             .let { gson.fromJson(it, Post::class.java) }
     }
 
     override fun deleteLikeById(id: Long): Post {
-        val request = Request.Builder()
+       return Request.Builder()
             .url("$BASE_URL/api/slow/posts/$id/likes")
             .delete()
-            .build()
-
-        return client.newCall(request)
+            .build().let(client::newCall)
             .execute()
             .let { it.body?.string() ?: throw RuntimeException("body is null") }
             .let { gson.fromJson(it, Post::class.java) }
