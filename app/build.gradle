@@ -77,6 +77,7 @@ dependencies {
     implementation "com.google.android.gms:play-services-base:$play_services_base_version"
     implementation 'com.google.firebase:firebase-analytics-ktx'
     implementation "com.squareup.okhttp3:okhttp:$okhttp_version"
+    implementation "androidx.swiperefreshlayout:swiperefreshlayout:1.2.0-alpha01"
 
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
