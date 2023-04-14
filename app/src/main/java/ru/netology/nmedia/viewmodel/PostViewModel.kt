@@ -25,7 +25,7 @@ private val empty = Post(
 class PostViewModel(application: Application) : AndroidViewModel(application) {
 
     private val repository: PostRepository = PostRepositoryImpl(
-//       AppDb.getInstance(application).draftDao()
+       AppDb.getInstance(application).draftDao()
     )
     private val _data = MutableLiveData<FeedModel>()
     val data: LiveData<FeedModel>
@@ -36,7 +36,7 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
     private val _postCreated = SingleLiveEvent<Unit>()
     val postCreated: LiveData<Unit>
         get() = _postCreated
-   // var draft = repository.getDraft() ?: ""
+    var draft = repository.getDraft() ?: ""
 
     init {
         loadPosts()
@@ -62,7 +62,7 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
             }
         }
         edited.value = empty
-//       saveDraft("")
+       saveDraft("")
     }
 
     fun edit(post: Post) {
@@ -81,7 +81,26 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
 
     fun likeById(id: Long) {
         thread {
-            repository.likeById(id)
+            val old = _data.value?.posts.orEmpty()
+            val post = old.find { it.id == id }?.let {
+                try {
+                    if(it.likedByMe) {
+                        repository.deleteLikeById(id)
+                    } else {
+                        repository.likeById(id)
+                    }
+                } catch (e: IOException) {
+                    _data.postValue(_data.value?.copy(posts = old))
+                    return@thread
+                }
+            }
+            post?.let {
+                _data.postValue(_data.value
+                    ?.copy(posts = old.map { post ->
+                        if (post.id == it.id) it.copy(likedByMe = it.likedByMe) else post
+                    })
+                )
+            }
         }
     }
 
@@ -106,13 +125,10 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-
-
-
-//    fun saveDraft(content: String) {
-//        repository.deleteDraft()
-//        repository.insertDraft(content)
-//        draft = content
-//    }
+    fun saveDraft(content: String) {
+        repository.deleteDraft()
+        repository.insertDraft(content)
+        draft = content
+    }
     }
 
