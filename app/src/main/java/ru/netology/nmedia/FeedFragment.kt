@@ -79,6 +79,7 @@ class FeedFragment : Fragment() {
             }
         })
 
+
         binding.list.adapter = adapter
         viewModel.data.observe(viewLifecycleOwner) { state ->
             val newPost = adapter.currentList.size < state.posts.size

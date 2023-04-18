@@ -65,7 +65,6 @@ class PostFragment: Fragment() {
             }
 
             override fun onViewPost(post: Post) {}
-
         })
 
 

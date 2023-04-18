@@ -36,7 +36,15 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
     private val _postCreated = SingleLiveEvent<Unit>()
     val postCreated: LiveData<Unit>
         get() = _postCreated
+
     var draft = repository.getDraft() ?: ""
+
+    private fun changeLikedByMe(id: Long) {
+        _data.postValue(
+            _data.value?.copy(posts = _data.value?.posts.orEmpty().map {
+                if (it.id == id) it.copy(likedByMe = !it.likedByMe) else it
+            }))
+    }
 
     init {
         loadPosts()
@@ -85,8 +93,10 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
             val post = old.find { it.id == id }?.let {
                 try {
                     if(it.likedByMe) {
+                        changeLikedByMe(id)
                         repository.deleteLikeById(id)
                     } else {
+                        changeLikedByMe(id)
                         repository.likeById(id)
                     }
                 } catch (e: IOException) {
@@ -95,14 +105,14 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
                 }
             }
             post?.let {
-                _data.postValue(_data.value
-                    ?.copy(posts = old.map { post ->
-                        if (post.id == it.id) it.copy(likedByMe = it.likedByMe) else post
-                    })
-                )
+                _data.postValue(FeedModel(posts = _data.value?.posts.orEmpty().map {post ->
+                    if(post.id == it.id) it else post}))
             }
         }
     }
+
+
+
 
 
     fun shareById(id: Long) {
@@ -130,5 +140,5 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
         repository.insertDraft(content)
         draft = content
     }
-    }
+}
 
