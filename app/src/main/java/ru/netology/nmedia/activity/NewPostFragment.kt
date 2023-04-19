@@ -33,8 +33,12 @@ class NewPostFragment : Fragment() {
             if (text.isNotBlank()) {
                 viewModel.changeContent(text)
                 viewModel.save()
-                findNavController().navigateUp()
             }
+        }
+
+        viewModel.postCreated.observe(viewLifecycleOwner) {
+            viewModel.loadPosts()
+            findNavController().navigateUp()
         }
 
         requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner) {

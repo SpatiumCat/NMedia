@@ -1,34 +1,84 @@
 package ru.netology.nmedia.repository
 
-import androidx.lifecycle.*
+
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.RequestBody.Companion.toRequestBody
 import ru.netology.nmedia.Post
 import ru.netology.nmedia.dao.DraftDao
-import ru.netology.nmedia.dao.PostDao
 import ru.netology.nmedia.entity.DraftEntity
-import ru.netology.nmedia.entity.PostEntity
+import java.util.concurrent.TimeUnit
 
 
-class PostRepositoryImpl(private val postDao: PostDao, private val draftDao: DraftDao) : PostRepository {
+class PostRepositoryImpl(private val draftDao: DraftDao) : PostRepository {
+
+    private val client = OkHttpClient.Builder()
+        .connectTimeout(30, TimeUnit.SECONDS)
+        .build()
+    private val gson = Gson()
+    private val typeToken = object : TypeToken<List<Post>>() {}
+
+    companion object {
+        private const val BASE_URL = "http://192.168.0.212:9999"
+        private val jsonType = "application/json".toMediaType()
+    }
 
 
+    override fun getAll(): List<Post> {
+        val request: Request = Request.Builder()
+            .url("$BASE_URL/api/slow/posts").build()
 
-    override fun getAll() = postDao.getAll().map { list -> list.map { it.toDto() } }
+        return client.newCall(request)
+            .execute()
+            .let { it.body?.string() ?: throw RuntimeException("body is null") }
+            .let { gson.fromJson(it, typeToken.type) }
+    }
 
 
-    override fun likeById(id: Long) {
-        postDao.likeById(id)
+    override fun likeById(id: Long): Post {
+        return Request.Builder()
+            .url("$BASE_URL/api/slow/posts/$id/likes")
+            .post(gson.toJson(id).toRequestBody(jsonType))
+            .build().let(client::newCall)
+            .execute()
+            .let { it.body?.string() ?: throw RuntimeException("body is null") }
+            .let { gson.fromJson(it, Post::class.java) }
+    }
+
+    override fun deleteLikeById(id: Long): Post {
+       return Request.Builder()
+            .url("$BASE_URL/api/slow/posts/$id/likes")
+            .delete()
+            .build().let(client::newCall)
+            .execute()
+            .let { it.body?.string() ?: throw RuntimeException("body is null") }
+            .let { gson.fromJson(it, Post::class.java) }
     }
 
     override fun shareById(id: Long) {
-        postDao.shareById(id)
     }
 
     override fun removeById(id: Long) {
-        postDao.removeById(id)
+        Request.Builder()
+            .url("$BASE_URL/api/slow/posts/$id")
+            .delete()
+            .build()
+            .let(client::newCall)
+            .execute()
+            .close()
     }
 
     override fun save(post: Post) {
-      postDao.save(PostEntity.fromDto(post))
+        Request.Builder()
+            .url("$BASE_URL/api/slow/posts")
+            .post(gson.toJson(post).toRequestBody(jsonType))
+            .build()
+            .let(client::newCall)
+            .execute()
+            .close()
     }
 
     override fun insertDraft(content: String) {

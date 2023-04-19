@@ -12,7 +12,7 @@ import ru.netology.nmedia.R
 import ru.netology.nmedia.countMapping
 import ru.netology.nmedia.databinding.CardPostBinding
 
-typealias OnLikeListener = (post: Post) -> Unit
+//typealias OnLikeListener = (post: Post) -> Unit
 
 interface OnInteractionListener {
     fun onLike(post: Post)
