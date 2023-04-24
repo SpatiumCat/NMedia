@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.activity.addCallback
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -32,7 +33,11 @@ class NewPostFragment : Fragment() {
             val text = binding.contentPanel.text.toString()
             if (text.isNotBlank()) {
                 viewModel.changeContent(text)
-                viewModel.save()
+                try {
+                    viewModel.save()
+                } catch (e: Exception){
+                    Toast.makeText(requireContext(), "Нет соединения с сервером", Toast.LENGTH_LONG).show()
+                }
             }
         }
 
@@ -54,7 +59,6 @@ class NewPostFragment : Fragment() {
     companion object {
         var Bundle.textArg: String? by StringArg
     }
-
 
 }
 
