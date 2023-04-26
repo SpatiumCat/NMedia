@@ -1,7 +1,6 @@
 package ru.netology.nmedia.viewmodel
 
 import android.app.Application
-import android.widget.Toast
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -48,36 +47,42 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
         )
     }
 
+    private fun updatePosts(updatedPost: Post) {
+        _data.postValue(FeedModel(posts = _data.value?.posts.orEmpty().map { oldPost ->
+            if (oldPost.id == updatedPost.id) updatedPost else oldPost
+        }))
+    }
+
+
     init {
         loadPosts()
     }
 
     fun loadPosts() {
         _data.value = FeedModel(loading = true)
-       repository.getAllAsync(object : PostRepository.GetAllCallback<List<Post>>{
-           override fun onSuccess(posts: List<Post>) {
-               _data.postValue(FeedModel(posts = posts, empty = posts.isEmpty()))
-           }
+        repository.getAllAsync(object : PostRepository.GetAllCallback<List<Post>> {
+            override fun onSuccess(post_s: List<Post>) {
+                _data.postValue(FeedModel(posts = post_s, empty = post_s.isEmpty()))
+            }
 
-           override fun onError(e: Exception) {
-              _data.postValue(FeedModel(error = true))
-           }
-       })
+            override fun onError(e: Exception) {
+                _data.postValue(FeedModel(error = true))
+            }
+        })
     }
 
     fun save() {
         edited.value?.let {
-                repository.save(it, object: PostRepository.GetAllCallback<Unit>{
-                    override fun onSuccess(posts: Unit) {
-                        _postCreated.postValue(Unit)
-                    }
+            repository.saveAsync(it, object : PostRepository.GetAllCallback<Unit> {
 
-                    override fun onError(e: Exception) {
-                        if (e is IOException) { throw IOException()}
-                    }
+                override fun onSuccess(post_s: Unit) {
+                    _postCreated.postValue(Unit)
+                }
 
-                })
-                _postCreated.postValue(Unit)
+                override fun onError(e: Exception) {
+                    _data.postValue(FeedModel(error = true))
+                }
+            })
         }
         edited.value = empty
         saveDraft("")
@@ -98,26 +103,35 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun likeById(id: Long) {
-        thread {
-            val old = _data.value?.posts.orEmpty()
-            val post = old.find { it.id == id }?.let {
-                try {
-                    if (it.likedByMe) {
-                        changeLikedByMe(id)
-                        repository.deleteLikeById(id)
-                    } else {
-                        changeLikedByMe(id)
-                        repository.likeById(id)
+        val oldPosts = _data.value?.posts.orEmpty()
+
+        oldPosts.find { it.id == id }?.let {
+            if (it.likedByMe) {
+                changeLikedByMe(id)
+                repository.deleteLikeByIdAsync(id, object : PostRepository.GetAllCallback<Post> {
+
+                    override fun onSuccess(post_s: Post) {
+                        updatePosts(post_s)
                     }
-                } catch (e: IOException) {
-                    _data.postValue(_data.value?.copy(posts = old))
-                    return@thread
-                }
-            }
-            post?.let {
-                _data.postValue(FeedModel(posts = _data.value?.posts.orEmpty().map { post ->
-                    if (post.id == it.id) it else post
-                }))
+
+                    override fun onError(e: Exception) {
+                        _data.postValue(FeedModel(posts = oldPosts))
+                    }
+
+                })
+            } else {
+                changeLikedByMe(id)
+                repository.likeByIdAsync(id, object : PostRepository.GetAllCallback<Post> {
+
+                    override fun onSuccess(post_s: Post) {
+                        updatePosts(post_s)
+                    }
+
+                    override fun onError(e: Exception) {
+                        _data.postValue(FeedModel(posts = oldPosts))
+                    }
+
+                })
             }
         }
     }
@@ -130,17 +144,18 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun removeById(id: Long) {
-        thread {
-            val old = _data.value?.posts.orEmpty()
-            _data.postValue(
-                _data.value?.copy(posts = _data.value?.posts.orEmpty().filter { it.id != id })
-            )
-            try {
-                repository.removeById(id)
-            } catch (e: IOException) {
+        val old = _data.value?.posts.orEmpty()
+        _data.postValue(
+            _data.value?.copy(posts = _data.value?.posts.orEmpty().filter { it.id != id })
+        )
+        repository.removeByIdAsync(id, object : PostRepository.GetAllCallback<Unit> {
+            override fun onSuccess(post_s: Unit) {
+            }
+
+            override fun onError(e: Exception) {
                 _data.postValue(_data.value?.copy(posts = old))
             }
-        }
+        })
     }
 
     fun saveDraft(content: String) {

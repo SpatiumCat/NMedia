@@ -33,13 +33,10 @@ class NewPostFragment : Fragment() {
             val text = binding.contentPanel.text.toString()
             if (text.isNotBlank()) {
                 viewModel.changeContent(text)
-                try {
-                    viewModel.save()
-                } catch (e: Exception){
-                    Toast.makeText(requireContext(), "Нет соединения с сервером", Toast.LENGTH_LONG).show()
+                viewModel.save()
+//                    Toast.makeText(requireContext(), "Нет соединения с сервером", Toast.LENGTH_LONG).show()
                 }
             }
-        }
 
         viewModel.postCreated.observe(viewLifecycleOwner) {
             viewModel.loadPosts()
