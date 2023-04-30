@@ -1,6 +1,7 @@
 package ru.netology.nmedia.adapter
 
 import android.view.LayoutInflater
+import android.view.RoundedCorner
 import android.view.View
 import android.view.ViewGroup
 import android.widget.PopupMenu
@@ -8,6 +9,8 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.resource.bitmap.CircleCrop
+import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import ru.netology.nmedia.Post
 import ru.netology.nmedia.R
 import ru.netology.nmedia.countMapping
@@ -62,6 +65,7 @@ class PostViewHolder (
                         .placeholder(R.drawable.ic_loading_100dp)
                         .error(R.drawable.ic_error_100dp)
                         .timeout(10000)
+                        .transform(CircleCrop())
                         .into(binding.avatarImageView)
                 } else {
                     Glide.with(binding.avatarImageView).clear(binding.avatarImageView)
