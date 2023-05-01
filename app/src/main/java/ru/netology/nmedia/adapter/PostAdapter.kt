@@ -10,11 +10,14 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.CircleCrop
+import com.bumptech.glide.load.resource.bitmap.FitCenter
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import ru.netology.nmedia.Post
 import ru.netology.nmedia.R
 import ru.netology.nmedia.countMapping
 import ru.netology.nmedia.databinding.CardPostBinding
+import java.text.SimpleDateFormat
+import java.util.*
 
 //typealias OnLikeListener = (post: Post) -> Unit
 
@@ -53,11 +56,21 @@ class PostViewHolder (
         fun bind (post: Post) {
             binding.apply {
                 author.text = post.author
-                textPublished.text = post.published
+                textPublished.text = SimpleDateFormat("dd.MM.yyyy").format(Date(post.published * 1000L))
                 content.text = post.content
                 like.isChecked = post.likedByMe
                 like.text = post.likes.toString()
                 videoGroup.visibility = if (post.video.isNullOrBlank()) View.GONE else View.VISIBLE
+
+                imageAttachmentView.visibility = if (post.attachment == null) View.GONE else {
+                    Glide.with(binding.imageAttachmentView)
+                        .load("$url/images/${post.attachment.url}")
+                        .placeholder(R.drawable.ic_loading_100dp)
+                        .error(R.drawable.ic_error_100dp)
+                        .timeout(10_000)
+                        .into(binding.imageAttachmentView)
+                    View.VISIBLE
+                }
 
                 if (post.authorAvatar.isNotBlank()) {
                     Glide.with(binding.avatarImageView)

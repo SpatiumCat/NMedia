@@ -82,7 +82,7 @@
         android:layout_height="wrap_content"
         android:text="@string/about_netology"
         app:layout_constraintTop_toBottomOf="@id/barrierOnTop"
-        app:layout_constraintBottom_toTopOf="@id/imageVideoButton"
+        app:layout_constraintBottom_toTopOf="@id/imageAttachmentView"
         android:layout_marginTop="@dimen/common_spacing"
         android:layout_marginBottom="@dimen/common_spacing"
         />
@@ -95,7 +95,7 @@
        app:layout_constraintStart_toStartOf="parent"
        app:layout_constraintEnd_toEndOf="parent"
        app:layout_constraintBottom_toTopOf="@id/barrierUnderVideo"
-       app:layout_constraintTop_toBottomOf="@id/content"
+       app:layout_constraintTop_toBottomOf="@id/imageAttachmentView"
        android:layout_margin="@dimen/common_spacing"
        android:scaleType="fitCenter"
        android:adjustViewBounds="true"
@@ -192,7 +192,19 @@
         android:textSize="@dimen/text_size"
         />
 
-
+    <ImageView
+        android:id="@+id/imageAttachmentView"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toTopOf="@id/imageVideoButton"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/content"
+        android:scaleType="fitCenter"
+        android:adjustViewBounds="true"
+        android:visibility="gone"
+        tools:visibility="visible"
+        tools:src="@tools:sample/backgrounds/scenic" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
