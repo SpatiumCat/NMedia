@@ -69,6 +69,9 @@ class PostViewHolder (
                         .error(R.drawable.ic_error_100dp)
                         .timeout(10_000)
                         .into(binding.imageAttachmentView)
+                    post.attachment.description?.let {
+                        imageAttachmentView.contentDescription = it
+                    }
                     View.VISIBLE
                 }
 
