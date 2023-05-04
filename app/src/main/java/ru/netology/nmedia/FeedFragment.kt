@@ -30,7 +30,6 @@ class FeedFragment : Fragment() {
         val binding = FragmentFeedBinding.inflate(layoutInflater, container, false)
         val viewModel: PostViewModel by viewModels(ownerProducer = ::requireParentFragment)
 
-
         val adapter = PostAdapter(object : OnInteractionListener {
 
             override fun onLike(post: Post) {
@@ -105,6 +104,7 @@ class FeedFragment : Fragment() {
         }
         return binding.root
     }
+
 }
 
 

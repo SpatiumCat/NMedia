@@ -7,13 +7,10 @@ import androidx.room.RoomDatabase
 import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.internal.synchronized
 import ru.netology.nmedia.dao.DraftDao
-import ru.netology.nmedia.dao.PostDao
 import ru.netology.nmedia.entity.DraftEntity
-import ru.netology.nmedia.entity.PostEntity
 
-@Database(entities = [PostEntity::class, DraftEntity::class], version = 1)
+@Database(entities = [DraftEntity::class], version = 2)
 abstract class AppDb : RoomDatabase() {
-    abstract fun postDao(): PostDao
     abstract fun draftDao(): DraftDao
 
     companion object {
