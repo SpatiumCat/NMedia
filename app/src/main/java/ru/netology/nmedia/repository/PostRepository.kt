@@ -9,7 +9,7 @@ interface PostRepository {
     fun deleteLikeByIdAsync (id: Long, callback: GetAllCallback<Post>)
     fun shareById(id: Long)
     fun removeByIdAsync(id: Long, callback: GetAllCallback<Unit>)
-    fun saveAsync(post: Post, callback: GetAllCallback<Unit>)
+    fun saveAsync(post: Post, callback: GetAllCallback<Post>)
     fun insertDraft(content: String)
     fun deleteDraft()
     fun getDraft(): String?

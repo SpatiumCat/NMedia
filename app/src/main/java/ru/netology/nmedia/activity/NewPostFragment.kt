@@ -5,7 +5,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.activity.addCallback
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -13,6 +12,7 @@ import androidx.navigation.fragment.findNavController
 import ru.netology.nmedia.databinding.FragmentNewPostBinding
 import ru.netology.nmedia.util.StringArg
 import ru.netology.nmedia.viewmodel.PostViewModel
+
 
 class NewPostFragment : Fragment() {
 
@@ -29,12 +29,13 @@ class NewPostFragment : Fragment() {
         arguments?.textArg?.let(binding.contentPanel::setText)
         binding.contentPanel.requestFocus()
 
+
+
         binding.buttonOk.setOnClickListener {
             val text = binding.contentPanel.text.toString()
             if (text.isNotBlank()) {
                 viewModel.changeContent(text)
                 viewModel.save()
-//                    Toast.makeText(requireContext(), "Нет соединения с сервером", Toast.LENGTH_LONG).show()
                 }
             }
 
