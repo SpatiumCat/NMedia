@@ -1,7 +1,6 @@
 package ru.netology.nmedia.adapter
 
 import android.view.LayoutInflater
-import android.view.RoundedCorner
 import android.view.View
 import android.view.ViewGroup
 import android.widget.PopupMenu
@@ -10,8 +9,7 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.CircleCrop
-import com.bumptech.glide.load.resource.bitmap.FitCenter
-import com.bumptech.glide.load.resource.bitmap.RoundedCorners
+import ru.netology.nmedia.BuildConfig.BASE_URL
 import ru.netology.nmedia.Post
 import ru.netology.nmedia.R
 import ru.netology.nmedia.countMapping
@@ -19,7 +17,7 @@ import ru.netology.nmedia.databinding.CardPostBinding
 import java.text.SimpleDateFormat
 import java.util.*
 
-//typealias OnLikeListener = (post: Post) -> Unit
+
 
 interface OnInteractionListener {
     fun onLike(post: Post)
@@ -52,7 +50,7 @@ class PostViewHolder (
     private val binding: CardPostBinding,
     private val onInteractionListener: OnInteractionListener
     ): RecyclerView.ViewHolder(binding.root) {
-    private val url = "http://192.168.0.212:9999"
+//    private val BASE_URL = "http://192.168.0.212:9999"
         fun bind (post: Post) {
             binding.apply {
                 author.text = post.author
@@ -64,7 +62,7 @@ class PostViewHolder (
 
                 imageAttachmentView.visibility = if (post.attachment == null) View.GONE else {
                     Glide.with(binding.imageAttachmentView)
-                        .load("$url/images/${post.attachment.url}")
+                        .load("$BASE_URL/images/${post.attachment.url}")
                         .placeholder(R.drawable.ic_loading_100dp)
                         .error(R.drawable.ic_error_100dp)
                         .timeout(10_000)
@@ -77,7 +75,7 @@ class PostViewHolder (
 
                 if (post.authorAvatar.isNotBlank()) {
                     Glide.with(binding.avatarImageView)
-                        .load("$url/avatars/${post.authorAvatar}")
+                        .load("$BASE_URL/avatars/${post.authorAvatar}")
                         .placeholder(R.drawable.ic_loading_100dp)
                         .error(R.drawable.ic_error_100dp)
                         .timeout(10000)
