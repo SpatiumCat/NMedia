@@ -99,7 +99,7 @@
        android:layout_margin="@dimen/common_spacing"
        android:scaleType="fitCenter"
        android:adjustViewBounds="true"
-       android:background="@android:color/transparent"/>
+       android:background="@android:color/transparent" />
 
     <ImageButton
         android:id="@+id/playButton"

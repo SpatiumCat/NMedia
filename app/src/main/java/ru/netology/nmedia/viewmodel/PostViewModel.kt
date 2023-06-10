@@ -5,9 +5,15 @@ import android.widget.Toast
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.map
+import androidx.lifecycle.viewModelScope
+import com.google.android.gms.tasks.Tasks.await
+import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
 import ru.netology.nmedia.Post
 import ru.netology.nmedia.db.AppDb
 import ru.netology.nmedia.model.FeedModel
+import ru.netology.nmedia.model.FeedModelState
 import ru.netology.nmedia.repository.PostRepository
 import ru.netology.nmedia.repository.PostRepositoryImpl
 import ru.netology.nmedia.util.SingleLiveEvent
@@ -27,11 +33,14 @@ private val empty = Post(
 class PostViewModel(application: Application) : AndroidViewModel(application) {
 
     private val repository: PostRepository = PostRepositoryImpl(
-        AppDb.getInstance(application).draftDao()
+        AppDb.getInstance(application).draftDao(),
+        AppDb.getInstance(application).postDao()
     )
-    private val _data = MutableLiveData<FeedModel>()
-    val data: LiveData<FeedModel>
-        get() = _data
+
+    val data: LiveData<FeedModel> = repository.data.map { FeedModel(posts = it) }
+    private val _dataState = MutableLiveData<FeedModelState>()
+    val dataState: LiveData<FeedModelState>
+        get() = _dataState
 
     private val edited = MutableLiveData(empty)
 
@@ -39,56 +48,67 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
     val postCreated: LiveData<Unit>
         get() = _postCreated
 
-    var draft = repository.getDraft() ?: ""
+    var draft: String = ""
 
-    private fun changeLikedByMe(id: Long) {
-        _data.value = _data.value?.copy(posts = _data.value?.posts.orEmpty().map {
-            if (it.id == id) it.copy(likedByMe = !it.likedByMe) else it
-        }
-        )
-    }
 
-    private fun updatePosts(updatedPost: Post) {
-        _data.value = FeedModel(posts = _data.value?.posts.orEmpty().map { oldPost ->
-            if (oldPost.id == updatedPost.id) updatedPost else oldPost
-        })
-    }
+//    private fun changeLikedByMe(id: Long) {
+//        data.value = data.value?.copy(posts = data.value?.posts.orEmpty().map {
+//            if (it.id == id) it.copy(likedByMe = !it.likedByMe) else it
+//        }
+//        )
+//    }
+
+//    private fun updatePosts(updatedPost: Post) {
+//        data.value = FeedModel(posts = data.value?.posts.orEmpty().map { oldPost ->
+//            if (oldPost.id == updatedPost.id) updatedPost else oldPost
+//        })
+//    }
 
 
     init {
         loadPosts()
+        loadDraft()
     }
 
     fun loadPosts() {
-        _data.value = FeedModel(loading = true)
-        repository.getAllAsync(object : PostRepository.GetAllCallback<List<Post>> {
-            override fun onSuccess(post_s: List<Post>) {
-                _data.value = FeedModel(posts = post_s, empty = post_s.isEmpty())
+        viewModelScope.launch {
+            try {
+                _dataState.value = FeedModelState(loading = true)
+                repository.getAll()
+                _dataState.value = FeedModelState()
+            } catch (e: Exception) {
+                _dataState.value = FeedModelState(error = true)
             }
+        }
+    }
 
-            override fun onError(e: Exception) {
-                _data.value = FeedModel(error = true)
+    fun refresh() {
+        viewModelScope.launch {
+            try {
+                _dataState.value = FeedModelState(refreshing = true)
+                repository.getAll()
+                _dataState.value = FeedModelState()
+            } catch (e: Exception) {
+                _dataState.value = FeedModelState(error = true)
             }
-        })
+        }
     }
 
     fun save() {
-        edited.value?.let {
-            repository.saveAsync(it, object : PostRepository.GetAllCallback<Post> {
-
-                override fun onSuccess(post_s: Post) {
-                    _postCreated.value = Unit
+        viewModelScope.launch {
+            try {
+                edited.value?.let {
+                    repository.save(it)
                 }
-
-                override fun onError(e: Exception) {
-                    _data.value = FeedModel(error = true)
-                    Toast.makeText(getApplication(), "Ошибка сервера", Toast.LENGTH_LONG).show()
-                }
-            })
+                edited.value = empty
+                saveDraft("")
+            } catch (e: Exception) {
+                _dataState.value = FeedModelState(error = true)
+                // Toast.makeText(getApplication(), "Ошибка сервера", Toast.LENGTH_LONG).show()
+            }
         }
-        edited.value = empty
-        saveDraft("")
     }
+
 
     fun edit(post: Post) {
         edited.value = post
@@ -105,67 +125,65 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun likeById(id: Long) {
-        val oldPosts = _data.value?.posts.orEmpty()
-
-        val oldPost = oldPosts.find { it.id == id }
-        oldPost?.let {
+        data.value?.posts?.find { it.id == id }?.let {
             if (it.likedByMe) {
-                changeLikedByMe(id)
-                repository.deleteLikeByIdAsync(id, object : PostRepository.GetAllCallback<Post> {
-
-                    override fun onSuccess(post_s: Post) {
-                        updatePosts(post_s)
+                viewModelScope.launch {
+                    try {
+                        repository.deleteLikeById(id)
+                    } catch (e: Exception) {
+                        _dataState.value = FeedModelState(error = true)
                     }
-
-                    override fun onError(e: Exception) {
-                        updatePosts(oldPost)
-                        Toast.makeText(getApplication(), "Ошибка сервера", Toast.LENGTH_LONG).show()
-                    }
-                })
+                }
             } else {
-                changeLikedByMe(id)
-                repository.likeByIdAsync(id, object : PostRepository.GetAllCallback<Post> {
-
-                    override fun onSuccess(post_s: Post) {
-                        updatePosts(post_s)
+                viewModelScope.launch {
+                    try {
+                        repository.likeById(id)
+                    } catch (e: Exception) {
+                        _dataState.value = FeedModelState(error = true)
                     }
-
-                    override fun onError(e: Exception) {
-                        updatePosts(oldPost)
-                        Toast.makeText(getApplication(), "Ошибка сервера", Toast.LENGTH_LONG).show()
-                    }
-                })
+                }
             }
         }
+
+//        viewModelScope.launch {
+//            try {
+//                repository.likeById(id)
+//            } catch (e: Exception) {
+//                _dataState.value = FeedModelState(error = true)
+//            }
+//        }
     }
 
 
     fun shareById(id: Long) {
-        thread {
+        viewModelScope.launch {
             repository.shareById(id)
         }
     }
 
     fun removeById(id: Long) {
-        val old = _data.value?.posts.orEmpty()
-        _data.value =
-            _data.value?.copy(posts = _data.value?.posts.orEmpty().filter { it.id != id })
-
-        repository.removeByIdAsync(id, object : PostRepository.GetAllCallback<Unit> {
-            override fun onSuccess(post_s: Unit) {
+        viewModelScope.launch {
+            try {
+                repository.likeById(id)
+            } catch (e: Exception) {
+                _dataState.value = FeedModelState(error = true)
             }
+        }
+    }
 
-            override fun onError(e: Exception) {
-                Toast.makeText(getApplication(), "Ошибка сервера", Toast.LENGTH_LONG).show()
-                _data.value = _data.value?.copy(posts = old)
-            }
-        })
+    private fun loadDraft() {
+        val draftDeferred = viewModelScope.async { repository.getDraft() }
+        //viewModelScope.launch { draft = draftDeferred.await() ?: "" }
     }
 
     fun saveDraft(content: String) {
-        repository.deleteDraft()
-        repository.insertDraft(content)
-        draft = content
+        viewModelScope.launch {
+            repository.deleteDraft()
+            repository.insertDraft(content)
+            draft = content
+        }
     }
 }
+
+
 
