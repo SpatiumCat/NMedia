@@ -37,7 +37,8 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
         AppDb.getInstance(application).postDao()
     )
 
-    val data: LiveData<FeedModel> = repository.data.map { FeedModel(posts = it) }
+    val data: LiveData<FeedModel> = repository.data.map {
+        FeedModel(posts = it) }
     private val _dataState = MutableLiveData<FeedModelState>()
     val dataState: LiveData<FeedModelState>
         get() = _dataState
@@ -98,13 +99,13 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
         viewModelScope.launch {
             try {
                 edited.value?.let {
+                    _postCreated.value = Unit
                     repository.save(it)
                 }
                 edited.value = empty
                 saveDraft("")
             } catch (e: Exception) {
                 _dataState.value = FeedModelState(error = true)
-                // Toast.makeText(getApplication(), "Ошибка сервера", Toast.LENGTH_LONG).show()
             }
         }
     }
@@ -164,7 +165,7 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
     fun removeById(id: Long) {
         viewModelScope.launch {
             try {
-                repository.likeById(id)
+                repository.removeById(id)
             } catch (e: Exception) {
                 _dataState.value = FeedModelState(error = true)
             }
@@ -172,7 +173,7 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     private fun loadDraft() {
-        val draftDeferred = viewModelScope.async { repository.getDraft() }
+        val draftDeferred = viewModelScope.async { draft = repository.getDraft() ?: "" }
         //viewModelScope.launch { draft = draftDeferred.await() ?: "" }
     }
 

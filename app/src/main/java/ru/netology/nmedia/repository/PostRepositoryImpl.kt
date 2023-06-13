@@ -81,12 +81,12 @@ class PostRepositoryImpl(
 
     override suspend fun removeById(id: Long) {
         try {
+            postDao.removeById(id)
             val response = PostApi.retrofitService.removeById(id)
             if (!response.isSuccessful) {
                 throw ApiError(response.code(), response.message())
             }
             //val body = response.body() ?: throw ApiError(response.code(), response.message())
-            postDao.removeById(id)
         } catch (e: IOException) {
             throw NetworkError
         } catch (e: Exception) {
@@ -105,7 +105,7 @@ class PostRepositoryImpl(
                 throw ApiError(response.code(), response.message())
             }
             val body = response.body() ?: throw ApiError(response.code(), response.message())
-            postDao.save(PostEntity.fromDto(post))
+            postDao.save(PostEntity.fromDto(body))
         } catch (e: IOException) {
             throw NetworkError
         } catch (e: Exception) {

@@ -113,7 +113,7 @@ class FeedFragment : Fragment() {
 
         binding.swiperefresh.setOnRefreshListener {
             viewModel.refresh()
-            binding.swiperefresh.isRefreshing = false
+           // binding.swiperefresh.isRefreshing = false
         }
         return binding.root
     }
