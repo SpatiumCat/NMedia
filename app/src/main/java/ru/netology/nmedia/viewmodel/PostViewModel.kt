@@ -37,8 +37,7 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
         AppDb.getInstance(application).postDao()
     )
 
-    val data: LiveData<FeedModel> = repository.data.map {
-        FeedModel(posts = it) }
+    val data: LiveData<FeedModel> = repository.data.map { FeedModel(posts = it) }
     private val _dataState = MutableLiveData<FeedModelState>()
     val dataState: LiveData<FeedModelState>
         get() = _dataState
@@ -121,18 +120,22 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
             if (it.content == text) {
                 return
             }
-            edited.value = it.copy(content = text)
+            edited.value = it.copy(
+                content = text,
+                id = data.value?.posts?.maxOf { post -> post.id }?.plus(1L) ?: 0
+            )
         }
     }
 
     fun likeById(id: Long) {
-        data.value?.posts?.find { it.id == id }?.let {
+        val oldPost = data.value?.posts?.find { it.id == id }?.let {
             if (it.likedByMe) {
                 viewModelScope.launch {
                     try {
                         repository.deleteLikeById(id)
                     } catch (e: Exception) {
                         _dataState.value = FeedModelState(error = true)
+
                     }
                 }
             } else {
@@ -146,13 +149,6 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
             }
         }
 
-//        viewModelScope.launch {
-//            try {
-//                repository.likeById(id)
-//            } catch (e: Exception) {
-//                _dataState.value = FeedModelState(error = true)
-//            }
-//        }
     }
 
 
@@ -173,7 +169,7 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     private fun loadDraft() {
-        val draftDeferred = viewModelScope.async { draft = repository.getDraft() ?: "" }
+        val draftDeferred = viewModelScope.launch { draft = repository.getDraft() ?: "" }
         //viewModelScope.launch { draft = draftDeferred.await() ?: "" }
     }
 
