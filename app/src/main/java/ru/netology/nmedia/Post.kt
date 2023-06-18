@@ -13,7 +13,8 @@ data class Post (
     val likes: Int = 1099,
     val shares: Int = 1000,
     val views: Int = 12500,
-    val attachment: Attachment?
+    val attachment: Attachment?,
+    val isSaved: Boolean = false
         )
 
 data class Attachment(

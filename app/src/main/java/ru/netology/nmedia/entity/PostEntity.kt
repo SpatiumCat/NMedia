@@ -19,10 +19,12 @@ data class PostEntity(
     val likes: Int = 1099,
     val shares: Int = 1000,
     val views: Int = 12500,
+
     @Embedded
-    val attachment: Attachment?
+    val attachment: Attachment?,
+    val isSaved: Boolean = false,
     ) {
-    fun toDto() = Post(id, author, authorAvatar, content, published, video, likedByMe, likes, shares, views, attachment)
+    fun toDto() = Post(id, author, authorAvatar, content, published, video, likedByMe, likes, shares, views, attachment, isSaved)
 
     companion object {
         fun fromDto(dto: Post) =
@@ -38,7 +40,8 @@ data class PostEntity(
                     dto.likes,
                     dto.shares,
                     dto.views,
-                    null
+                    null,
+                    dto.isSaved
                 )
             } else {
                 PostEntity(
@@ -52,7 +55,8 @@ data class PostEntity(
                     dto.likes,
                     dto.shares,
                     dto.views,
-                    dto.attachment
+                    dto.attachment,
+                    dto.isSaved
                 )
             }
 

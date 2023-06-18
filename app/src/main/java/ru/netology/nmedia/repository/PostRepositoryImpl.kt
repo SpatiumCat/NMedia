@@ -108,12 +108,12 @@ class PostRepositoryImpl(
     override suspend fun save(post: Post) {
         try {
             postDao.save(PostEntity.fromDto(post))
-//            val response = PostApi.retrofitService.save(post)
-//            if (!response.isSuccessful) {
-//                throw ApiError(response.code(), response.message())
-//            }
-//            val body = response.body() ?: throw ApiError(response.code(), response.message())
-//            postDao.save(PostEntity.fromDto(body))
+            val response = PostApi.retrofitService.save(post.copy(id = 0L))
+            if (!response.isSuccessful) {
+                throw ApiError(response.code(), response.message())
+            }
+            val body = response.body() ?: throw ApiError(response.code(), response.message())
+            postDao.save(PostEntity.fromDto(body).copy(isSaved = true))
         } catch (e: IOException) {
             throw NetworkError
         } catch (e: Exception) {

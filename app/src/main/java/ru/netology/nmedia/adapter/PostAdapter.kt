@@ -4,6 +4,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.PopupMenu
+import androidx.core.view.isVisible
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -59,6 +60,13 @@ class PostViewHolder (
                 like.isChecked = post.likedByMe
                 like.text = post.likes.toString()
                 videoGroup.visibility = if (post.video.isNullOrBlank()) View.GONE else View.VISIBLE
+                with(imageSaved){
+                    isVisible = post.isSaved
+                    isActivated = post.isSaved
+                }
+
+
+
 
                 imageAttachmentView.visibility = if (post.attachment == null) View.GONE else {
                     Glide.with(binding.imageAttachmentView)
