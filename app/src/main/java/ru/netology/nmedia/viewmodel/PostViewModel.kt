@@ -99,7 +99,7 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
             try {
                 edited.value?.let {
                     _postCreated.value = Unit
-                    repository.save(it)
+                    repository.save(it.copy(isSaved = false))
                 }
                 edited.value = empty
                 saveDraft("")
@@ -122,7 +122,6 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
             }
             edited.value = it.copy(
                 content = text,
-                id = data.value?.posts?.maxOf { post -> post.id }?.plus(1L) ?: 0
             )
         }
     }

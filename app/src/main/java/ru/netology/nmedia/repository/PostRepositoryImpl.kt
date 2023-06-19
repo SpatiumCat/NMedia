@@ -38,7 +38,7 @@ class PostRepositoryImpl(
                 throw ApiError(response.code(), response.message())
             }
             val body = response.body() ?: throw ApiError(response.code(), response.message())
-            postDao.insert(body.toEntity())
+            postDao.insert(body.map { it.copy(isSaved = true) }.toEntity())
         } catch (e: IOException) {
             throw NetworkError
         } catch (e: Exception) {
@@ -48,6 +48,7 @@ class PostRepositoryImpl(
 
 
     override suspend fun likeById(id: Long) {
+        val oldPost = data.value?.find { it.id == id }
         try {
             postDao.likeById(id)
             val response = PostApi.retrofitService.likeById(id)
@@ -55,7 +56,7 @@ class PostRepositoryImpl(
                 throw ApiError(response.code(), response.message())
             }
             val body = response.body() ?: throw ApiError(response.code(), response.message())
-            postDao.insert(PostEntity.fromDto(body))
+            postDao.insert(PostEntity.fromDto(body.copy(isSaved = true)))
         } catch (e: IOException) {
             postDao.likeById(id)
             throw NetworkError
@@ -73,7 +74,7 @@ class PostRepositoryImpl(
                 throw ApiError(response.code(), response.message())
             }
             val body = response.body() ?: throw ApiError(response.code(), response.message())
-            postDao.insert(PostEntity.fromDto(body))
+            postDao.insert(PostEntity.fromDto(body.copy(isSaved = true)))
         } catch (e: IOException) {
             postDao.likeById(id)
             throw NetworkError
@@ -108,11 +109,12 @@ class PostRepositoryImpl(
     override suspend fun save(post: Post) {
         try {
             postDao.save(PostEntity.fromDto(post))
-            val response = PostApi.retrofitService.save(post.copy(id = 0L))
+            val response = PostApi.retrofitService.save(post)
             if (!response.isSuccessful) {
                 throw ApiError(response.code(), response.message())
             }
             val body = response.body() ?: throw ApiError(response.code(), response.message())
+            postDao.removeById(post.id)
             postDao.save(PostEntity.fromDto(body).copy(isSaved = true))
         } catch (e: IOException) {
             throw NetworkError

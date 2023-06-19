@@ -11,7 +11,7 @@ import ru.netology.nmedia.dao.PostDao
 import ru.netology.nmedia.entity.DraftEntity
 import ru.netology.nmedia.entity.PostEntity
 
-@Database(entities = [DraftEntity::class, PostEntity::class], version = 7)
+@Database(entities = [DraftEntity::class, PostEntity::class], version = 8)
 abstract class AppDb : RoomDatabase() {
     abstract fun draftDao(): DraftDao
     abstract fun postDao(): PostDao
