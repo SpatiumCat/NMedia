@@ -15,7 +15,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         android:src="@drawable/sel_save"
         app:layout_constraintTop_toBottomOf="@id/viewsCount"
-        android:visibility="gone"
+        android:visibility="visible"
         tools:visibility="visible"
         android:checkable = "true"
         android:layout_marginTop="8dp"/>

@@ -61,7 +61,6 @@ class PostViewHolder (
                 like.text = post.likes.toString()
                 videoGroup.visibility = if (post.video.isNullOrBlank()) View.GONE else View.VISIBLE
                 with(imageSaved){
-                    isVisible = post.isSaved
                     isActivated = post.isSaved
                 }
 

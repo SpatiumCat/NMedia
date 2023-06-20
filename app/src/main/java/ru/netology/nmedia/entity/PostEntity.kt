@@ -8,7 +8,7 @@ import ru.netology.nmedia.Post
 
 @Entity
 data class PostEntity(
-    @PrimaryKey(autoGenerate = false)
+    @PrimaryKey(autoGenerate = true)
     val id: Long,
     val author: String,
     val authorAvatar: String,
