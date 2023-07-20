@@ -11,6 +11,7 @@ interface PostRepository {
     suspend fun shareById(id: Long)
     suspend fun removeById(id: Long)
     suspend fun save(post: Post)
+    suspend fun retrySaving(post: Post)
     suspend fun insertDraft(content: String)
     suspend fun deleteDraft()
     suspend fun getDraft(): String?

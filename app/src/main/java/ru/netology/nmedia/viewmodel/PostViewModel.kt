@@ -99,11 +99,21 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
             try {
                 edited.value?.let {
                     _postCreated.value = Unit
-                    repository.save(it.copy(isSaved = false))
+                    repository.save(it)
                 }
                 edited.value = empty
                 saveDraft("")
             } catch (e: Exception) {
+                _dataState.value = FeedModelState(error = true)
+            }
+        }
+    }
+
+    fun retrySaving(post: Post) {
+        viewModelScope.launch {
+            try {
+                repository.retrySaving(post)
+            }  catch (e: Exception) {
                 _dataState.value = FeedModelState(error = true)
             }
         }

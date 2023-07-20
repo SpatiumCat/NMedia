@@ -108,13 +108,31 @@ class PostRepositoryImpl(
 
     override suspend fun save(post: Post) {
         try {
-            postDao.save(PostEntity.fromDto(post))
+            postDao.save(PostEntity.fromDto(post.copy(
+                id = data.value?.maxOf { post -> post.id }?.plus(1) ?: 0,
+                isSaved = false)))
             val response = PostApi.retrofitService.save(post)
             if (!response.isSuccessful) {
                 throw ApiError(response.code(), response.message())
             }
             val body = response.body() ?: throw ApiError(response.code(), response.message())
-            postDao.removeById(post.id)
+            postDao.removeByContent(post.content)
+            postDao.save(PostEntity.fromDto(body).copy(isSaved = true))
+        } catch (e: IOException) {
+            throw NetworkError
+        } catch (e: Exception) {
+            throw UnknownError
+        }
+    }
+
+    override suspend fun retrySaving(post: Post) {
+        try {
+            val response = PostApi.retrofitService.save(post.copy(id = 0))
+            if (!response.isSuccessful) {
+                throw ApiError(response.code(), response.message())
+            }
+            val body = response.body() ?: throw ApiError(response.code(), response.message())
+            postDao.removeByContent(post.content)
             postDao.save(PostEntity.fromDto(body).copy(isSaved = true))
         } catch (e: IOException) {
             throw NetworkError

@@ -65,6 +65,10 @@ class PostFragment: Fragment() {
             }
 
             override fun onViewPost(post: Post) {}
+
+            override fun onRetrySaving(post: Post) {
+                viewModel.retrySaving(post)
+            }
         })
 
 

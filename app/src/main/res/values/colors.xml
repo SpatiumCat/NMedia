@@ -9,4 +9,5 @@
     <color name="white">#FFFFFFFF</color>
     <color name="color_edit_post">#1484DD</color>
     <color name="color_liked">#FFFF0000</color>
+    <color name="color_error">#C65450</color>
 </resources>

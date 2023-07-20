@@ -4,7 +4,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.PopupMenu
-import androidx.core.view.isVisible
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -27,6 +26,7 @@ interface OnInteractionListener {
     fun onEdit(post: Post)
     fun onPlay(post: Post)
     fun onViewPost(post: Post)
+    fun onRetrySaving(post: Post)
 }
 
 
@@ -63,9 +63,7 @@ class PostViewHolder (
                 with(imageSaved){
                     isActivated = post.isSaved
                 }
-
-
-
+                errorButton.visibility = if (post.isSaved) View.GONE else View.VISIBLE
 
                 imageAttachmentView.visibility = if (post.attachment == null) View.GONE else {
                     Glide.with(binding.imageAttachmentView)
@@ -133,6 +131,10 @@ class PostViewHolder (
 
                 binding.root.setOnClickListener {
                     onInteractionListener.onViewPost(post)
+                }
+
+                binding.errorButton.setOnClickListener {
+                    onInteractionListener.onRetrySaving(post)
                 }
             }
         }

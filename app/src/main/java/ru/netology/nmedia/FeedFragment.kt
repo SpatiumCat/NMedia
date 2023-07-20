@@ -77,6 +77,10 @@ class FeedFragment : Fragment() {
                     }
                 )
             }
+
+            override fun onRetrySaving(post: Post) {
+                    viewModel.retrySaving(post)
+            }
         })
 
 

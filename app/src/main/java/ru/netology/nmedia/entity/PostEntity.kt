@@ -8,7 +8,7 @@ import ru.netology.nmedia.Post
 
 @Entity
 data class PostEntity(
-    @PrimaryKey(autoGenerate = true)
+    @PrimaryKey(autoGenerate = false)
     val id: Long,
     val author: String,
     val authorAvatar: String,
@@ -16,9 +16,9 @@ data class PostEntity(
     val published: Long,
     val video: String? = "",
     var likedByMe: Boolean = false,
-    val likes: Int = 1099,
-    val shares: Int = 1000,
-    val views: Int = 12500,
+    val likes: Int = 0,
+    val shares: Int = 0,
+    val views: Int = 0,
 
     @Embedded
     val attachment: Attachment?,
