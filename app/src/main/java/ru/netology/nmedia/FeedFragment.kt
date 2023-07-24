@@ -79,7 +79,7 @@ class FeedFragment : Fragment() {
             }
 
             override fun onRetrySaving(post: Post) {
-                    viewModel.retrySaving(post)
+                viewModel.retrySaving(post)
             }
         })
 
@@ -100,11 +100,13 @@ class FeedFragment : Fragment() {
                 Snackbar.make(
                     binding.root, R.string.error_loading, Snackbar.LENGTH_LONG
                 )
-                    .setAction(R.string.retry_loading) {viewModel.loadPosts()}
+                    .setAction(R.string.retry_loading) { viewModel.loadPosts() }
                     .show()
             }
+        }
 
-
+        viewModel.newerCount.observe(viewLifecycleOwner) {
+            println("Newer count: $it")
         }
 
 //        binding.retryButton.setOnClickListener {
@@ -117,7 +119,7 @@ class FeedFragment : Fragment() {
 
         binding.swiperefresh.setOnRefreshListener {
             viewModel.refresh()
-           // binding.swiperefresh.isRefreshing = false
+            // binding.swiperefresh.isRefreshing = false
         }
         return binding.root
     }

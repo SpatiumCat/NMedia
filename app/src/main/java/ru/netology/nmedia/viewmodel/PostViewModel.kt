@@ -5,10 +5,14 @@ import android.widget.Toast
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.asLiveData
 import androidx.lifecycle.map
+import androidx.lifecycle.switchMap
 import androidx.lifecycle.viewModelScope
 import com.google.android.gms.tasks.Tasks.await
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import ru.netology.nmedia.Post
 import ru.netology.nmedia.db.AppDb
@@ -38,6 +42,8 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
     )
 
     val data: LiveData<FeedModel> = repository.data.map { FeedModel(posts = it) }
+        .asLiveData(Dispatchers.Default)
+
     private val _dataState = MutableLiveData<FeedModelState>()
     val dataState: LiveData<FeedModelState>
         get() = _dataState
@@ -49,6 +55,11 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
         get() = _postCreated
 
     var draft: String = ""
+
+    val newerCount: LiveData<Int> = data.switchMap {
+        repository.getNewer(it.posts.firstOrNull()?.id ?: 0L)
+            .asLiveData(Dispatchers.Default)
+    }
 
 
 //    private fun changeLikedByMe(id: Long) {
