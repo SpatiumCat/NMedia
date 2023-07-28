@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="new_posts_button">New Posts</string>
+    <string name="extended_fab_content_desc">new posts button</string>
+</resources>

@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="hello">Привет, Мир!</string>
+    <string name="new_posts_button">Свежие записи</string>
+    <string name="extended_fab_content_desc">Кнопка свежих записей</string>
     <string name="app_name">НМедиа</string>
     <string name="NMediaText">НМедиа!</string>
     <string name="author">Нетология. Университет интернет профессий</string>

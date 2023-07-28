@@ -39,10 +39,12 @@ class PostRepositoryImpl(
 
     private var posts = emptyList<Post>()
 
-    override val data: Flow<List<Post>> = postDao.getAll()
+    override val data: Flow<List<Post>> = postDao.getAllVisible()
         .map(List<PostEntity>::toDto)
         .onEach { posts = it }
         .flowOn(Dispatchers.Default)
+
+
 
     override fun getNewer(id: Long): Flow<Int> = flow {
 
@@ -55,7 +57,7 @@ class PostRepositoryImpl(
                     throw ApiError(response.code(), response.message())
                 }
                 val body = response.body() ?: throw ApiError(response.code(), response.message())
-                postDao.insert(body.map { it.copy(isSaved = true) }.toEntity())
+                postDao.insert(body.map { it.copy(isSaved = true) }.toEntity(hidden = true))
                 emit(body.size)
             } catch (e: CancellationException) {
                 throw e
@@ -92,7 +94,7 @@ class PostRepositoryImpl(
                 throw ApiError(response.code(), response.message())
             }
             val body = response.body() ?: throw ApiError(response.code(), response.message())
-            postDao.insert(PostEntity.fromDto(body.copy(isSaved = true)))
+            postDao.insert(PostEntity.fromDto(body.copy(isSaved = true), hidden = false))
         } catch (e: IOException) {
             postDao.likeById(id)
             throw NetworkError
@@ -110,7 +112,7 @@ class PostRepositoryImpl(
                 throw ApiError(response.code(), response.message())
             }
             val body = response.body() ?: throw ApiError(response.code(), response.message())
-            postDao.insert(PostEntity.fromDto(body.copy(isSaved = true)))
+            postDao.insert(PostEntity.fromDto(body.copy(isSaved = true), hidden = false))
         } catch (e: IOException) {
             postDao.likeById(id)
             throw NetworkError
@@ -131,10 +133,10 @@ class PostRepositoryImpl(
             }
             //val body = response.body() ?: throw ApiError(response.code(), response.message())
         } catch (e: IOException) {
-            oldPost?.let { postDao.insert(PostEntity.fromDto(it)) }
+            oldPost?.let { postDao.insert(PostEntity.fromDto(it, hidden = false)) }
             throw NetworkError
         } catch (e: Exception) {
-            oldPost?.let { postDao.insert(PostEntity.fromDto(it)) }
+            oldPost?.let { postDao.insert(PostEntity.fromDto(it, hidden = false)) }
             throw UnknownError
         }
     }
@@ -151,7 +153,7 @@ class PostRepositoryImpl(
                     post.copy(
                         id = posts.maxOfOrNull { post -> post.id }?.plus(1) ?: 0,
                         isSaved = false
-                    )
+                    ), hidden = false
                 )
             )
             val response = PostApi.retrofitService.save(post)
@@ -160,7 +162,7 @@ class PostRepositoryImpl(
             }
             val body = response.body() ?: throw ApiError(response.code(), response.message())
             postDao.removeByContent(post.content)
-            postDao.save(PostEntity.fromDto(body).copy(isSaved = true))
+            postDao.save(PostEntity.fromDto(body.copy(isSaved = true), hidden = false))
         } catch (e: IOException) {
             throw NetworkError
         } catch (e: Exception) {
@@ -177,12 +179,16 @@ class PostRepositoryImpl(
             }
             val body = response.body() ?: throw ApiError(response.code(), response.message())
             postDao.removeByContent(post.content)
-            postDao.save(PostEntity.fromDto(body).copy(isSaved = true))
+            postDao.save(PostEntity.fromDto(body.copy(isSaved = true), hidden = false))
         } catch (e: IOException) {
             throw NetworkError
         } catch (e: Exception) {
             throw UnknownError
         }
+    }
+
+    override suspend fun showAll() {
+        postDao.showAll()
     }
 
 
