@@ -26,6 +26,7 @@ interface OnInteractionListener {
     fun onEdit(post: Post)
     fun onPlay(post: Post)
     fun onViewPost(post: Post)
+    fun onRetrySaving(post: Post)
 }
 
 
@@ -59,6 +60,10 @@ class PostViewHolder (
                 like.isChecked = post.likedByMe
                 like.text = post.likes.toString()
                 videoGroup.visibility = if (post.video.isNullOrBlank()) View.GONE else View.VISIBLE
+                with(imageSaved){
+                    isActivated = post.isSaved
+                }
+                errorButton.visibility = if (post.isSaved) View.GONE else View.VISIBLE
 
                 imageAttachmentView.visibility = if (post.attachment == null) View.GONE else {
                     Glide.with(binding.imageAttachmentView)
@@ -126,6 +131,10 @@ class PostViewHolder (
 
                 binding.root.setOnClickListener {
                     onInteractionListener.onViewPost(post)
+                }
+
+                binding.errorButton.setOnClickListener {
+                    onInteractionListener.onRetrySaving(post)
                 }
             }
         }

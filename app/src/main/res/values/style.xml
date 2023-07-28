@@ -18,4 +18,10 @@
         <item name="iconTint">?attr/colorControlNormal</item>
     </style>
 
+    <style name="style_error_button" parent="Widget.MaterialComponents.Button.TextButton.Icon">
+        <item name="icon">@drawable/error_24</item>
+        <item name="iconTint">@color/color_error</item>
+        <item name="android:textColor">?attr/colorControlNormal</item>
+    </style>
+
 </resources>

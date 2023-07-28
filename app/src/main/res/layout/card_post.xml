@@ -7,6 +7,34 @@
     android:padding="@dimen/common_spacing"
     tools:context=".FeedFragment">
 
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/errorButton"
+        style="@style/style_error_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:minHeight="0dp"
+        android:minWidth="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/imageSaved"
+        app:layout_constraintTop_toBottomOf="@id/viewsImage"
+        android:layout_marginEnd="8dp"
+        tools:visibility="visible"
+        android:visibility="gone"
+        />
+
+    <ImageView
+        android:id="@+id/imageSaved"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:src="@drawable/sel_save"
+        app:layout_constraintTop_toBottomOf="@id/viewsCount"
+        android:visibility="visible"
+        tools:visibility="visible"
+        android:checkable = "true"
+        android:layout_marginTop="8dp"/>
+
     <ImageView
         android:id="@+id/avatarImageView"
         android:layout_width="@dimen/posts_avatar_size"
@@ -99,7 +127,7 @@
        android:layout_margin="@dimen/common_spacing"
        android:scaleType="fitCenter"
        android:adjustViewBounds="true"
-       android:background="@android:color/transparent"/>
+       android:background="@android:color/transparent" />
 
     <ImageButton
         android:id="@+id/playButton"
@@ -127,7 +155,7 @@
         android:id="@+id/videoGroup"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        tools:visibility="visible"
+        tools:visibility="gone"
         android:visibility="gone"
         app:constraint_referenced_ids="imageVideoButton, barrierUnderVideo, playButton"/>
 
