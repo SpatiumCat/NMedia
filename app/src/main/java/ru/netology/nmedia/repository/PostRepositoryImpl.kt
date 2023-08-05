@@ -2,7 +2,15 @@ package ru.netology.nmedia.repository
 
 
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.map
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -29,7 +37,37 @@ class PostRepositoryImpl(
     private val postDao: PostDao
 ) : PostRepository {
 
-    override val data: LiveData<List<Post>> = postDao.getAll().map(List<PostEntity>::toDto)
+    private var posts = emptyList<Post>()
+
+    override val data: Flow<List<Post>> = postDao.getAllVisible()
+        .map(List<PostEntity>::toDto)
+        .onEach { posts = it }
+        .flowOn(Dispatchers.Default)
+
+
+
+    override fun getNewer(id: Long): Flow<Int> = flow {
+
+        while (true) {
+            delay(10_000)
+
+            try {
+                val response = PostApi.retrofitService.getNewer(id)
+                if (!response.isSuccessful) {
+                    throw ApiError(response.code(), response.message())
+                }
+                val body = response.body() ?: throw ApiError(response.code(), response.message())
+                postDao.insert(body.map { it.copy(isSaved = true) }.toEntity(hidden = true))
+                emit(body.size)
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: IOException) {
+                throw NetworkError
+            } catch (e: Exception) {
+                throw UnknownError
+            }
+        }
+    }
 
     override suspend fun getAll() {
         try {
@@ -48,7 +86,7 @@ class PostRepositoryImpl(
 
 
     override suspend fun likeById(id: Long) {
-        val oldPost = data.value?.find { it.id == id }
+        val oldPost = posts.find { it.id == id }
         try {
             postDao.likeById(id)
             val response = PostApi.retrofitService.likeById(id)
@@ -56,7 +94,7 @@ class PostRepositoryImpl(
                 throw ApiError(response.code(), response.message())
             }
             val body = response.body() ?: throw ApiError(response.code(), response.message())
-            postDao.insert(PostEntity.fromDto(body.copy(isSaved = true)))
+            postDao.insert(PostEntity.fromDto(body.copy(isSaved = true), hidden = false))
         } catch (e: IOException) {
             postDao.likeById(id)
             throw NetworkError
@@ -74,7 +112,7 @@ class PostRepositoryImpl(
                 throw ApiError(response.code(), response.message())
             }
             val body = response.body() ?: throw ApiError(response.code(), response.message())
-            postDao.insert(PostEntity.fromDto(body.copy(isSaved = true)))
+            postDao.insert(PostEntity.fromDto(body.copy(isSaved = true), hidden = false))
         } catch (e: IOException) {
             postDao.likeById(id)
             throw NetworkError
@@ -85,7 +123,8 @@ class PostRepositoryImpl(
     }
 
     override suspend fun removeById(id: Long) {
-        val oldPost = data.value?.find { it.id == id }
+
+        val oldPost = posts.find { it.id == id }
         try {
             postDao.removeById(id)
             val response = PostApi.retrofitService.removeById(id)
@@ -94,10 +133,10 @@ class PostRepositoryImpl(
             }
             //val body = response.body() ?: throw ApiError(response.code(), response.message())
         } catch (e: IOException) {
-            oldPost?.let { postDao.insert(PostEntity.fromDto(it)) }
+            oldPost?.let { postDao.insert(PostEntity.fromDto(it, hidden = false)) }
             throw NetworkError
         } catch (e: Exception) {
-            oldPost?.let { postDao.insert(PostEntity.fromDto(it)) }
+            oldPost?.let { postDao.insert(PostEntity.fromDto(it, hidden = false)) }
             throw UnknownError
         }
     }
@@ -107,17 +146,23 @@ class PostRepositoryImpl(
     }
 
     override suspend fun save(post: Post) {
+
         try {
-            postDao.save(PostEntity.fromDto(post.copy(
-                id = data.value?.maxOf { post -> post.id }?.plus(1) ?: 0,
-                isSaved = false)))
+            postDao.save(
+                PostEntity.fromDto(
+                    post.copy(
+                        id = posts.maxOfOrNull { post -> post.id }?.plus(1) ?: 0,
+                        isSaved = false
+                    ), hidden = false
+                )
+            )
             val response = PostApi.retrofitService.save(post)
             if (!response.isSuccessful) {
                 throw ApiError(response.code(), response.message())
             }
             val body = response.body() ?: throw ApiError(response.code(), response.message())
             postDao.removeByContent(post.content)
-            postDao.save(PostEntity.fromDto(body).copy(isSaved = true))
+            postDao.save(PostEntity.fromDto(body.copy(isSaved = true), hidden = false))
         } catch (e: IOException) {
             throw NetworkError
         } catch (e: Exception) {
@@ -126,6 +171,7 @@ class PostRepositoryImpl(
     }
 
     override suspend fun retrySaving(post: Post) {
+
         try {
             val response = PostApi.retrofitService.save(post.copy(id = 0))
             if (!response.isSuccessful) {
@@ -133,12 +179,16 @@ class PostRepositoryImpl(
             }
             val body = response.body() ?: throw ApiError(response.code(), response.message())
             postDao.removeByContent(post.content)
-            postDao.save(PostEntity.fromDto(body).copy(isSaved = true))
+            postDao.save(PostEntity.fromDto(body.copy(isSaved = true), hidden = false))
         } catch (e: IOException) {
             throw NetworkError
         } catch (e: Exception) {
             throw UnknownError
         }
+    }
+
+    override suspend fun showAll() {
+        postDao.showAll()
     }
 
 

@@ -11,6 +11,7 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.RecyclerView.AdapterDataObserver
 import com.google.android.material.snackbar.Snackbar
 import ru.netology.nmedia.activity.NewPostFragment.Companion.textArg
 import ru.netology.nmedia.adapter.OnInteractionListener
@@ -79,7 +80,7 @@ class FeedFragment : Fragment() {
             }
 
             override fun onRetrySaving(post: Post) {
-                    viewModel.retrySaving(post)
+                viewModel.retrySaving(post)
             }
         })
 
@@ -93,6 +94,15 @@ class FeedFragment : Fragment() {
             binding.emptyText.isVisible = state.empty
 
         }
+
+        adapter.registerAdapterDataObserver(object: AdapterDataObserver() {
+            override fun onItemRangeInserted(positionStart: Int, itemCount: Int) {
+                if (positionStart == 0) {
+                    binding.list.smoothScrollToPosition(0)
+                }
+            }
+        })
+
         viewModel.dataState.observe(viewLifecycleOwner) { state ->
             binding.progress.isVisible = state.loading
             binding.swiperefresh.isRefreshing = state.refreshing
@@ -100,11 +110,21 @@ class FeedFragment : Fragment() {
                 Snackbar.make(
                     binding.root, R.string.error_loading, Snackbar.LENGTH_LONG
                 )
-                    .setAction(R.string.retry_loading) {viewModel.loadPosts()}
+                    .setAction(R.string.retry_loading) { viewModel.loadPosts() }
                     .show()
             }
+        }
 
+        viewModel.newerCount.observe(viewLifecycleOwner) {
+            when  {
+                it == 0 -> binding.newerPostButton.visibility = View.GONE
+                it > 0 -> binding.newerPostButton.visibility = View.VISIBLE
+            }
+        }
 
+        binding.newerPostButton.setOnClickListener {
+            viewModel.showAllPosts()
+            it.visibility = View.GONE
         }
 
 //        binding.retryButton.setOnClickListener {
@@ -117,7 +137,7 @@ class FeedFragment : Fragment() {
 
         binding.swiperefresh.setOnRefreshListener {
             viewModel.refresh()
-           // binding.swiperefresh.isRefreshing = false
+            // binding.swiperefresh.isRefreshing = false
         }
         return binding.root
     }

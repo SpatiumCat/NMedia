@@ -14,7 +14,7 @@ data class Post (
     val shares: Int = 0,
     val views: Int = 0,
     val attachment: Attachment?,
-    val isSaved: Boolean = false
+    val isSaved: Boolean = false,
         )
 
 data class Attachment(

@@ -30,5 +30,7 @@
     <string name="retry_loading" translatable="true">Retry</string>
     <string name="empty_posts" translatable="true">There are no posts.\nIf you create a new post, it will appear here</string>
     <string name="error_loading" translatable="true">Something went wrong. Try again later</string>
+    <string name="new_posts_button" translatable="true">New Posts</string>
+    <string name="extended_fab_content_desc" translatable="true">new posts button</string>
 
 </resources>
