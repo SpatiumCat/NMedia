@@ -67,7 +67,7 @@ class PostViewHolder (
 
                 imageAttachmentView.visibility = if (post.attachment == null) View.GONE else {
                     Glide.with(binding.imageAttachmentView)
-                        .load("$BASE_URL/images/${post.attachment.url}")
+                        .load("$BASE_URL/media/${post.attachment.url}")
                         .placeholder(R.drawable.ic_loading_100dp)
                         .error(R.drawable.ic_error_100dp)
                         .timeout(10_000)

@@ -14,7 +14,7 @@
     <string name="description_share_button" translatable="false">share</string>
     <string name="description_views" translatable="false">views</string>
     <string name="description_edit_cancel" translatable="false">cancel editing</string>
-    <string name="description_save_button" translatable="false">save</string>
+    <string name="description_save_button" translatable="false">Save</string>
     <string name="popup_menu_remove" translatable="true">Remove</string>
     <string name="popup_menu_edit" translatable="true">Edit</string>
     <string name="hint_controlPanel" translatable="true">Text</string>
@@ -32,5 +32,7 @@
     <string name="error_loading" translatable="true">Something went wrong. Try again later</string>
     <string name="new_posts_button" translatable="true">New Posts</string>
     <string name="extended_fab_content_desc" translatable="true">new posts button</string>
+    <string name="clear">Clear</string>
+    <string name="photo_pick_error">Photo pick error</string>
 
 </resources>
