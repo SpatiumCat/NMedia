@@ -17,7 +17,7 @@ import ru.netology.nmedia.adapter.PostViewHolder
 import ru.netology.nmedia.databinding.FragmentPostBinding
 import ru.netology.nmedia.viewmodel.PostViewModel
 
-class PostFragment: Fragment() {
+class PostFragment : Fragment() {
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -27,7 +27,7 @@ class PostFragment: Fragment() {
 
         val binding = FragmentPostBinding.inflate(inflater, container, false)
         val viewModel: PostViewModel by viewModels(ownerProducer = ::requireParentFragment)
-        val viewHolder = PostViewHolder(binding.post, object: OnInteractionListener{
+        val viewHolder = PostViewHolder(binding.post, object : OnInteractionListener {
             override fun onLike(post: Post) {
                 viewModel.likeById(post.id)
             }
@@ -73,18 +73,32 @@ class PostFragment: Fragment() {
 
 
         val currentPost = arguments?.textArg?.let {
-            viewModel.data.value?.posts?.find { post -> post.id == it.toLong()  }
+            viewModel.data.value?.posts?.find { post -> post.id == it.toLong() }
         }
         if (currentPost != null) {
             viewHolder.bind(currentPost)
         }
-        viewModel.data.observe(viewLifecycleOwner){
+        viewModel.data.observe(viewLifecycleOwner) {
             val updatedPost = it.posts.find { post -> post.id == currentPost?.id }
             if (updatedPost != null) {
                 viewHolder.bind(updatedPost)
             }
         }
-        return binding.root
+
+        binding.post.imageAttachmentView.setOnClickListener {
+            findNavController().navigate(
+                R.id.action_postFragment_to_imageFragment,
+                Bundle().apply {
+                    currentPost?.let {
+                        if (it.attachment != null) {
+                            textArg = it.attachment.url
+                        }
+                    }
+                }
+            )
         }
+
+        return binding.root
     }
+}
 

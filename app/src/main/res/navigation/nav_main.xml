@@ -30,5 +30,12 @@
         <action
             android:id="@+id/action_postFragment_to_newPostFragment"
             app:destination="@id/newPostFragment" />
+        <action
+            android:id="@+id/action_postFragment_to_imageFragment"
+            app:destination="@id/imageFragment" />
     </fragment>
+    <fragment
+        android:id="@+id/imageFragment"
+        android:name="ru.netology.nmedia.activity.ImageFragment"
+        android:label="ImageFragment" />
 </navigation>
