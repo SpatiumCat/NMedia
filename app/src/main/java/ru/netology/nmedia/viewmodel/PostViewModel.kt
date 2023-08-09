@@ -19,6 +19,7 @@ import ru.netology.nmedia.Post
 import ru.netology.nmedia.db.AppDb
 import ru.netology.nmedia.model.FeedModel
 import ru.netology.nmedia.model.FeedModelState
+import ru.netology.nmedia.model.PhotoModel
 import ru.netology.nmedia.repository.PostRepository
 import ru.netology.nmedia.repository.PostRepositoryImpl
 import ru.netology.nmedia.util.SingleLiveEvent
@@ -46,10 +47,13 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
         .asLiveData(Dispatchers.Default)
 
 
-
     private val _dataState = MutableLiveData<FeedModelState>()
     val dataState: LiveData<FeedModelState>
         get() = _dataState
+
+    private val _photo = MutableLiveData<PhotoModel?>()
+    val photo: LiveData<PhotoModel?>
+        get() = _photo
 
     private val edited = MutableLiveData(empty)
 
@@ -63,7 +67,6 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
         repository.getNewer(it.posts.firstOrNull()?.id ?: 0L)
             .asLiveData(Dispatchers.Default)
     }.distinctUntilChanged()
-
 
 
     init {
@@ -96,25 +99,32 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun save() {
-        viewModelScope.launch {
-            try {
-                edited.value?.let {
-                    _postCreated.value = Unit
-                    repository.save(it)
+        edited.value?.let {
+            _postCreated.value = Unit
+            viewModelScope.launch {
+                try {
+                    val photo = _photo.value
+
+                    when (photo) {
+                        null -> repository.save(it)
+                        else -> repository.saveWithAttachment(it, photo)
+                    }
+
+                    saveDraft("")
+                    _dataState.value = FeedModelState()
+                } catch (e: Exception) {
+                    _dataState.value = FeedModelState(error = true)
                 }
-                edited.value = empty
-                saveDraft("")
-            } catch (e: Exception) {
-                _dataState.value = FeedModelState(error = true)
             }
         }
+        edited.value = empty
     }
 
     fun retrySaving(post: Post) {
         viewModelScope.launch {
             try {
                 repository.retrySaving(post)
-            }  catch (e: Exception) {
+            } catch (e: Exception) {
                 _dataState.value = FeedModelState(error = true)
             }
         }
@@ -178,7 +188,7 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun showAllPosts()  {
+    fun showAllPosts() {
         viewModelScope.launch {
             try {
                 repository.showAll()
@@ -199,6 +209,14 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
             repository.insertDraft(content)
             draft = content
         }
+    }
+
+    fun clearPhoto() {
+        _photo.value = null
+    }
+
+    fun setPhoto(photoModel: PhotoModel) {
+        _photo.value = photoModel
     }
 }
 

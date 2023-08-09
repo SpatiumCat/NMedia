@@ -3,6 +3,8 @@ package ru.netology.nmedia.repository
 import androidx.lifecycle.LiveData
 import kotlinx.coroutines.flow.Flow
 import ru.netology.nmedia.Post
+import ru.netology.nmedia.dto.Media
+import ru.netology.nmedia.model.PhotoModel
 
 interface PostRepository {
     val data: Flow<List<Post>>
@@ -15,6 +17,7 @@ interface PostRepository {
     suspend fun shareById(id: Long)
     suspend fun removeById(id: Long)
     suspend fun save(post: Post)
+    suspend fun saveWithAttachment(post: Post, photoModel: PhotoModel)
     suspend fun retrySaving(post: Post)
     suspend fun insertDraft(content: String)
     suspend fun deleteDraft()
