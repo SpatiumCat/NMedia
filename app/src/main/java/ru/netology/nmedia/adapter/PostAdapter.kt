@@ -4,6 +4,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.PopupMenu
+import androidx.core.view.isVisible
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -65,6 +66,7 @@ class PostViewHolder (
                 }
                 errorButton.visibility = if (post.isSaved) View.GONE else View.VISIBLE
 
+                menuButton.isVisible = post.ownedByMe
                 imageAttachmentView.visibility = if (post.attachment == null) View.GONE else {
                     Glide.with(binding.imageAttachmentView)
                         .load("$BASE_URL/media/${post.attachment.url}")

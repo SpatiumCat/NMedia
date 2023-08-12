@@ -34,5 +34,8 @@
     <string name="extended_fab_content_desc" translatable="true">new posts button</string>
     <string name="clear">Clear</string>
     <string name="photo_pick_error">Photo pick error</string>
+    <string name="register">Register</string>
+    <string name="authorize">Authorize</string>
+    <string name="logout">Logout</string>
 
 </resources>
