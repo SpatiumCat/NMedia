@@ -20,4 +20,8 @@
     <string name="error_loading">Что-то пошло не так. Попробуйте позднее</string>
     <string name="clear">Очистить</string>
     <string name="photo_pick_error">Ошибка загрузки изображения</string>
+    <string name="register">Регистрация</string>
+    <string name="authorize">Авторизация</string>
+    <string name="logout">Выход</string>
+    <string name="login">Вход</string>
 </resources>
