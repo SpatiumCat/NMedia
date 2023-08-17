@@ -10,6 +10,8 @@ import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.core.view.MenuProvider
 import androidx.navigation.findNavController
+import androidx.navigation.ui.onNavDestinationSelected
+import androidx.navigation.ui.setupActionBarWithNavController
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
 import com.google.android.material.snackbar.Snackbar
@@ -78,9 +80,13 @@ class AppActivity : AppCompatActivity() {
 
                     override fun onMenuItemSelected(menuItem: MenuItem): Boolean =
                         when (menuItem.itemId) {
-                            R.id.auth, R.id.register -> {
-                                //TOdo fix in HW
-                                AppAuth.getInstance().setToken(Token(5L, "x-token"))
+                            R.id.auth -> {
+                                menuItem.onNavDestinationSelected(findNavController(R.id.navHostFragment))
+                               // findNavController(R.id.navHostFragment).navigate(R.id.toSignIn)
+                               // AppAuth.getInstance().setToken(Token(5L, "x-token"))
+                                true
+                            }
+                            R.id.register -> {
                                 true
                             }
 

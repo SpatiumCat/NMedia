@@ -37,5 +37,6 @@
     <string name="register">Register</string>
     <string name="authorize">Authorize</string>
     <string name="logout">Logout</string>
+    <string name="login">Login</string>
 
 </resources>

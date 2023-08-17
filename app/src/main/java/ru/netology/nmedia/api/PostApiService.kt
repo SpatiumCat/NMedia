@@ -33,7 +33,7 @@ private val client = OkHttpClient.Builder()
     .connectTimeout(30, TimeUnit.SECONDS)
     .build()
 
-private val retrofit = Retrofit.Builder()
+val retrofit = Retrofit.Builder()
     .addConverterFactory(GsonConverterFactory.create())
     .baseUrl(BASE_URL)
     .client(client)

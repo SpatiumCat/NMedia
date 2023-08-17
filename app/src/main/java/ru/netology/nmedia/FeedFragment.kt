@@ -132,6 +132,7 @@ class FeedFragment : Fragment() {
 //        }
 
         binding.add.setOnClickListener {
+           // findNavController().navigate(R.id.action_feedFragment_to_auth)
             findNavController().navigate(R.id.action_feedFragment_to_newPostFragment)
         }
 
