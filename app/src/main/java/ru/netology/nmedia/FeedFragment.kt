@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.app.AlertDialog
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -16,13 +17,16 @@ import com.google.android.material.snackbar.Snackbar
 import ru.netology.nmedia.activity.NewPostFragment.Companion.textArg
 import ru.netology.nmedia.adapter.OnInteractionListener
 import ru.netology.nmedia.adapter.PostAdapter
+import ru.netology.nmedia.databinding.DialogSigninBinding
 import ru.netology.nmedia.databinding.FragmentFeedBinding
+import ru.netology.nmedia.viewmodel.AuthViewModel
 import ru.netology.nmedia.viewmodel.PostViewModel
+import ru.netology.nmedia.viewmodel.SignInViewModel
 import java.util.*
 
 class FeedFragment : Fragment() {
 
-
+    private lateinit var dialogBuilder: AlertDialog.Builder
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -31,10 +35,33 @@ class FeedFragment : Fragment() {
 
         val binding = FragmentFeedBinding.inflate(layoutInflater, container, false)
         val viewModel: PostViewModel by viewModels(ownerProducer = ::requireParentFragment)
+        val authViewModel: AuthViewModel by viewModels(ownerProducer = ::requireParentFragment)
+        val signInViewModel: SignInViewModel by viewModels(ownerProducer = ::requireParentFragment)
+        val dialogSigninBinding = DialogSigninBinding.inflate(layoutInflater)
+
+        dialogBuilder = AlertDialog.Builder(requireActivity())
+        dialogBuilder.setView(dialogSigninBinding.root)
+            .setCancelable(true)
+            .setPositiveButton(R.string.dialog_signin) { dialog, id ->
+                val login = dialogSigninBinding.username.text.toString()
+                val password = dialogSigninBinding.password.text.toString()
+                signInViewModel.signIn(login, password)
+
+            }
+            .setNegativeButton(R.string.dialog_cancel) {dialog, id ->
+                dialog.cancel()
+            }
+
 
         val adapter = PostAdapter(object : OnInteractionListener {
 
             override fun onLike(post: Post) {
+                if (!authViewModel.isAuthorized) {
+                    val parent:ViewGroup? = dialogSigninBinding.root.parent as? ViewGroup
+                    parent?.removeView(dialogSigninBinding.root)
+                    dialogBuilder.show()
+                    return
+                }
                 viewModel.likeById(post.id)
             }
 
@@ -132,13 +159,17 @@ class FeedFragment : Fragment() {
 //        }
 
         binding.add.setOnClickListener {
-           // findNavController().navigate(R.id.action_feedFragment_to_auth)
+            if (!authViewModel.isAuthorized) {
+                val parent: ViewGroup? = dialogSigninBinding.root.parent as? ViewGroup
+                parent?.removeView(dialogSigninBinding.root)
+                dialogBuilder.show()
+                return@setOnClickListener
+            }
             findNavController().navigate(R.id.action_feedFragment_to_newPostFragment)
         }
 
         binding.swiperefresh.setOnRefreshListener {
             viewModel.refresh()
-            // binding.swiperefresh.isRefreshing = false
         }
         return binding.root
     }

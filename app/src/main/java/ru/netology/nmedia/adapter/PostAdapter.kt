@@ -58,7 +58,7 @@ class PostViewHolder (
                 author.text = post.author
                 textPublished.text = SimpleDateFormat("dd.MM.yyyy").format(Date(post.published * 1000L))
                 content.text = post.content
-                like.isChecked = post.likedByMe
+                like.isCheckable = post.likedByMe
                 like.text = post.likes.toString()
                 videoGroup.visibility = if (post.video.isNullOrBlank()) View.GONE else View.VISIBLE
                 with(imageSaved){

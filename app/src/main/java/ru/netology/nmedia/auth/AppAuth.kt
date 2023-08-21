@@ -2,9 +2,7 @@ package ru.netology.nmedia.auth
 
 import android.content.Context
 import androidx.core.content.edit
-import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import ru.netology.nmedia.dto.Token
 
@@ -52,7 +50,7 @@ class AppAuth private constructor(
     }
 
     @Synchronized
-    fun cleatAuth() {
+    fun clearAuth() {
         _data.value = null
         prefs.edit { clear() }
     }

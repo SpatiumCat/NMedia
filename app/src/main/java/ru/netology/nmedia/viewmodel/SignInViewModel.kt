@@ -39,4 +39,7 @@ class SignInViewModel : ViewModel() {
         }
     }
 
+    fun signOut(){
+    }
+
 }

@@ -38,5 +38,9 @@
     <string name="authorize">Authorize</string>
     <string name="logout">Logout</string>
     <string name="login">Login</string>
-
+    <string name="password">Password</string>
+    <string name="dialog_cancel">Cancel</string>
+    <string name="dialog_signin">Sign In</string>
+    <string name="dialog_are_you_sure">Are you sure?</string>
+    <string name="dialog_ok" translatable="false">Ok</string>
 </resources>

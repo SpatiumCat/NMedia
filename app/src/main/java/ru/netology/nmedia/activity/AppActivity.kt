@@ -8,10 +8,10 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.widget.Toast
 import androidx.activity.viewModels
+import androidx.appcompat.app.AlertDialog
 import androidx.core.view.MenuProvider
 import androidx.navigation.findNavController
 import androidx.navigation.ui.onNavDestinationSelected
-import androidx.navigation.ui.setupActionBarWithNavController
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
 import com.google.android.material.snackbar.Snackbar
@@ -20,16 +20,20 @@ import ru.netology.nmedia.R
 import ru.netology.nmedia.activity.NewPostFragment.Companion.textArg
 import ru.netology.nmedia.auth.AppAuth
 import ru.netology.nmedia.databinding.ActivityAppBinding
-import ru.netology.nmedia.dto.Token
+import ru.netology.nmedia.databinding.DialogSigninBinding
 import ru.netology.nmedia.viewmodel.AuthViewModel
+import ru.netology.nmedia.viewmodel.SignInViewModel
 
 
 class AppActivity : AppCompatActivity() {
+
+    private lateinit var dialogBuilder: AlertDialog.Builder
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val binding = ActivityAppBinding.inflate(layoutInflater)
+        val dialogSigninBinding = DialogSigninBinding.inflate(layoutInflater, null, false)
         setContentView(binding.root)
 
         intent?.let {
@@ -59,6 +63,20 @@ class AppActivity : AppCompatActivity() {
         checkGoogleApiAvailability()
 
         val viewModel by viewModels<AuthViewModel>()
+        val signInViewModel by viewModels<SignInViewModel>()
+
+        dialogBuilder = AlertDialog.Builder(this)
+        dialogBuilder.setView(dialogSigninBinding.root)
+            .setCancelable(true)
+            .setPositiveButton(R.string.dialog_signin) { dialog, id ->
+                val login = dialogSigninBinding.username.text.toString()
+                val password = dialogSigninBinding.password.text.toString()
+                signInViewModel.signIn(login, password)
+
+            }
+            .setNegativeButton(R.string.dialog_cancel) { dialog, id ->
+                dialog.cancel()
+            }
 
         var oldMenuProvider: MenuProvider? = null
 
@@ -78,33 +96,58 @@ class AppActivity : AppCompatActivity() {
                     }
                 }
 
-                    override fun onMenuItemSelected(menuItem: MenuItem): Boolean =
-                        when (menuItem.itemId) {
-                            R.id.auth -> {
-                                menuItem.onNavDestinationSelected(findNavController(R.id.navHostFragment))
-                               // findNavController(R.id.navHostFragment).navigate(R.id.toSignIn)
-                               // AppAuth.getInstance().setToken(Token(5L, "x-token"))
-                                true
-                            }
-                            R.id.register -> {
-                                true
-                            }
-
-                            R.id.logout -> {
-                                AppAuth.getInstance().cleatAuth()
-                                true
-                            }
-
-                            else -> {
-                                false
-                            }
+                override fun onMenuItemSelected(menuItem: MenuItem): Boolean =
+                    when (menuItem.itemId) {
+                        R.id.auth -> {
+//                                val parent:ViewGroup? = dialogSigninBinding.root.parent as? ViewGroup
+//                                parent?.removeView(dialogSigninBinding.root)
+//                                dialogBuilder.show()
+                            menuItem.onNavDestinationSelected(findNavController(R.id.navHostFragment))
+                            // findNavController(R.id.navHostFragment).navigate(R.id.toSignIn)
+                            // AppAuth.getInstance().setToken(Token(5L, "x-token"))
+                            true
                         }
+
+                        R.id.register -> {
+                            true
+                        }
+
+                        R.id.logout -> {
+                            val destination =
+                                findNavController(R.id.navHostFragment).currentDestination
+                            destination?.let {
+                                if (it.id == R.id.newPostFragment) {
+                                    AlertDialog.Builder(this@AppActivity)
+                                        .setTitle(R.string.dialog_are_you_sure)
+                                        .setCancelable(false)
+                                        .setPositiveButton(R.string.dialog_ok) { dialog, id ->
+                                            AppAuth.getInstance().clearAuth()
+                                            findNavController(R.id.navHostFragment).navigateUp()
+                                        }
+                                        .setNegativeButton(R.string.dialog_cancel) { dialog, id ->
+                                            dialog.cancel()
+                                        }
+                                        .show()
+                                } else {
+                                    AppAuth.getInstance().clearAuth()
+                                }
+                            }
+
+
+                            true
+                        }
+
+                        else -> {
+                            false
+                        }
+                    }
             }.apply {
-                    oldMenuProvider = this
+                oldMenuProvider = this
             }, this)
         }
 
     }
+
 
     private fun checkGoogleApiAvailability() {
         with(GoogleApiAvailability.getInstance()) {
@@ -124,6 +167,5 @@ class AppActivity : AppCompatActivity() {
             println(it)
         }
     }
-
 
 }
