@@ -46,5 +46,13 @@
         android:name="ru.netology.nmedia.activity.SignInFragment"
         android:label="SignInFragment"
         tools:layout="@layout/fragment_sign_in" />
+    <fragment
+        android:id="@+id/registrationFragment"
+        android:name="ru.netology.nmedia.activity.RegistrationFragment"
+        android:label="RegistrationFragment"
+        tools:layout="@layout/fragment_registration"/>
+    <action
+        android:id="@+id/toRegistrationFragment"
+        app:destination="@id/registrationFragment"/>
 
 </navigation>

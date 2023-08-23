@@ -35,7 +35,7 @@ class SignInFragment : Fragment() {
 
         viewModel.dataState.observe(viewLifecycleOwner) {
             binding.signInButton.isVisible = !it.loading
-            binding.progressBarSingIn.isVisible = it.loading
+            binding.progressBarSignIn.isVisible = it.loading
             if (it.error) {
                 Snackbar.make(
                     binding.root, R.string.error_loading, Snackbar.LENGTH_LONG

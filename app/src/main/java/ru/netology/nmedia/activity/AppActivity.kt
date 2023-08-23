@@ -109,6 +109,7 @@ class AppActivity : AppCompatActivity() {
                         }
 
                         R.id.register -> {
+                            findNavController(R.id.navHostFragment).navigate(R.id.toRegistrationFragment)
                             true
                         }
 

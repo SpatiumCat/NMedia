@@ -28,4 +28,11 @@
     <string name="dialog_cancel">Отмена</string>
     <string name="dialog_signin">Войти</string>
     <string name="dialog_are_you_sure">Вы уверены?</string>
+    <string name="title_sign_in">Авторизация</string>
+    <string name="title_registration">Регистрация</string>
+    <string name="register_button">Зарегистрироваться</string>
+    <string name="name_edittext">Имя</string>
+    <string name="confirm_the_password_edittext">Подтвердите пароль</string>
+    <string name="password_edittext">Пароль</string>
+    <string name="password_not_conf">Пароль не подтвержден</string>
 </resources>
