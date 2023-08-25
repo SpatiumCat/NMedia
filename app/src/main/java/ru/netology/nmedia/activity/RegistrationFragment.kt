@@ -1,16 +1,22 @@
 package ru.netology.nmedia.activity
 
+import android.app.Activity
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.net.toFile
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
+import com.github.dhaval2404.imagepicker.ImagePicker
 import com.google.android.material.snackbar.Snackbar
 import ru.netology.nmedia.R
 import ru.netology.nmedia.databinding.FragmentRegistrationBinding
+import ru.netology.nmedia.model.PhotoModel
 import ru.netology.nmedia.viewmodel.RegistrationViewModel
 
 class RegistrationFragment : Fragment() {
@@ -18,6 +24,22 @@ class RegistrationFragment : Fragment() {
     private var _binding: FragmentRegistrationBinding? = null
     private val binding get() = _binding!!
     private val registrationViewModel: RegistrationViewModel by viewModels(ownerProducer = ::requireParentFragment)
+
+    private val avatarPickerContract =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+            when (it.resultCode) {
+                ImagePicker.RESULT_ERROR -> Toast.makeText(
+                    requireContext(),
+                    R.string.photo_pick_error,
+                    Toast.LENGTH_LONG
+                ).show()
+
+                Activity.RESULT_OK -> {
+                    val uri = it.data?.data ?: return@registerForActivityResult
+                    registrationViewModel.setAvatar(PhotoModel(uri, uri.toFile()))
+                }
+            }
+        }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -42,6 +64,11 @@ class RegistrationFragment : Fragment() {
             findNavController().navigateUp()
         }
 
+        registrationViewModel.avatar.observe(viewLifecycleOwner) { avatar ->
+            if (avatar == null) {return@observe}
+            binding.avatarUser.setImageURI(avatar.uri)
+        }
+
         binding.registerButton.setOnClickListener {
             val login = binding.loginRegister.text.toString()
             val pass = binding.passwordRegister.text.toString()
@@ -58,6 +85,16 @@ class RegistrationFragment : Fragment() {
                 registrationViewModel.registerUser(login, pass, name)
             }
         }
+
+        binding.avatarUser.setOnClickListener {
+            ImagePicker.with(this)
+                .galleryOnly()
+                .crop()
+                .createIntent {
+                    avatarPickerContract.launch(it)
+                }
+        }
+
 
 
         return binding.root

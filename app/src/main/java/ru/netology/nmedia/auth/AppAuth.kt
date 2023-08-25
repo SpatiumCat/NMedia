@@ -12,6 +12,7 @@ class AppAuth private constructor(
     companion object {
         private const val TOKEN_KEY = "TOKEN_KEY"
         private const val ID_KEY = "ID_KEY"
+        private const val AVATAR_KEY = "AVATAR_KEY"
         @Volatile
         private var INSTANCE: AppAuth? = null
 
@@ -31,11 +32,12 @@ class AppAuth private constructor(
     init {
         val token = prefs.getString(TOKEN_KEY, null)
         val id = prefs.getLong(ID_KEY, 0L)
+        val avatar = prefs.getString(AVATAR_KEY, null)
 
         if (token == null || id == 0L) {
             prefs.edit { clear() }
         } else {
-            _data.value = Token(id, token)
+            _data.value = Token(id, token, avatar)
         }
     }
 
@@ -45,6 +47,7 @@ class AppAuth private constructor(
         prefs.edit {
             putString(TOKEN_KEY, token.token)
             putLong(ID_KEY, token.id)
+            putString(AVATAR_KEY, token.avatar )
         }
 
     }
