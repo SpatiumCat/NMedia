@@ -11,6 +11,7 @@ data class PostEntity(
     @PrimaryKey(autoGenerate = false)
     val id: Long,
     val author: String,
+    val authorId: Long,
     val authorAvatar: String,
     val content: String,
     val published: Long,
@@ -24,41 +25,57 @@ data class PostEntity(
     val attachment: Attachment?,
     val isSaved: Boolean = false,
     val hidden: Boolean = false,
-    ) {
-    fun toDto() = Post(id, author, authorAvatar, content, published, video, likedByMe, likes, shares, views, attachment, isSaved)
+) {
+    fun toDto() = Post(
+        id = id,
+        author = author,
+        authorId = authorId,
+        authorAvatar = authorAvatar,
+        content = content,
+        published = published,
+        video = video,
+        likedByMe = likedByMe,
+        likes = likes,
+        shares = shares,
+        views = views,
+        attachment = attachment,
+        isSaved = isSaved
+    )
 
     companion object {
         fun fromDto(dto: Post, hidden: Boolean) =
-            if(dto.attachment == null) {
+            if (dto.attachment == null) {
                 PostEntity(
-                    dto.id,
-                    dto.author,
-                    dto.authorAvatar,
-                    dto.content,
-                    dto.published,
-                    dto.video,
-                    dto.likedByMe,
-                    dto.likes,
-                    dto.shares,
-                    dto.views,
-                    null,
-                    dto.isSaved,
+                    id = dto.id,
+                    author = dto.author,
+                    authorId = dto.authorId,
+                    authorAvatar = dto.authorAvatar,
+                    content = dto.content,
+                    published = dto.published,
+                    video = dto.video,
+                    likedByMe = dto.likedByMe,
+                    likes = dto.likes,
+                    shares = dto.shares,
+                    views = dto.views,
+                    attachment = null,
+                    isSaved = dto.isSaved,
                     hidden = hidden
                 )
             } else {
                 PostEntity(
-                    dto.id,
-                    dto.author,
-                    dto.authorAvatar,
-                    dto.content,
-                    dto.published,
-                    dto.video,
-                    dto.likedByMe,
-                    dto.likes,
-                    dto.shares,
-                    dto.views,
-                    dto.attachment,
-                    dto.isSaved,
+                    id = dto.id,
+                    author = dto.author,
+                    authorId = dto.authorId,
+                    authorAvatar = dto.authorAvatar,
+                    content = dto.content,
+                    published = dto.published,
+                    video = dto.video,
+                    likedByMe = dto.likedByMe,
+                    likes = dto.likes,
+                    shares = dto.shares,
+                    views = dto.views,
+                    attachment = dto.attachment,
+                    isSaved = dto.isSaved,
                     hidden = hidden
                 )
             }
@@ -67,4 +84,5 @@ data class PostEntity(
 }
 
 fun List<PostEntity>.toDto(): List<Post> = map(PostEntity::toDto)
-fun List<Post>.toEntity(hidden: Boolean = false): List<PostEntity> = map { PostEntity.fromDto(it, hidden) }
+fun List<Post>.toEntity(hidden: Boolean = false): List<PostEntity> =
+    map { PostEntity.fromDto(it, hidden) }

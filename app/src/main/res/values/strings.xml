@@ -34,5 +34,20 @@
     <string name="extended_fab_content_desc" translatable="true">new posts button</string>
     <string name="clear">Clear</string>
     <string name="photo_pick_error">Photo pick error</string>
-
+    <string name="register">Register</string>
+    <string name="authorize">Authorize</string>
+    <string name="logout">Logout</string>
+    <string name="login">Login</string>
+    <string name="password">Password</string>
+    <string name="dialog_cancel">Cancel</string>
+    <string name="dialog_signin">Sign In</string>
+    <string name="dialog_are_you_sure">Are you sure?</string>
+    <string name="dialog_ok" translatable="false">Ok</string>
+    <string name="title_sign_in">Sign In</string>
+    <string name="title_registration">Registration</string>
+    <string name="register_button">Register</string>
+    <string name="name_edittext">Name</string>
+    <string name="confirm_the_password_edittext">Confirm the password</string>
+    <string name="password_edittext">Password</string>
+    <string name="password_not_conf">Password not confirmed</string>
 </resources>

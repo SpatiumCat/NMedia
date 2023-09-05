@@ -3,23 +3,37 @@ package ru.netology.nmedia.activity
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
 import android.widget.Toast
+import androidx.activity.viewModels
+import androidx.appcompat.app.AlertDialog
+import androidx.core.view.MenuProvider
 import androidx.navigation.findNavController
+import androidx.navigation.ui.onNavDestinationSelected
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.messaging.FirebaseMessaging
 import ru.netology.nmedia.R
 import ru.netology.nmedia.activity.NewPostFragment.Companion.textArg
+import ru.netology.nmedia.auth.AppAuth
 import ru.netology.nmedia.databinding.ActivityAppBinding
+import ru.netology.nmedia.databinding.DialogSigninBinding
+import ru.netology.nmedia.viewmodel.AuthViewModel
+import ru.netology.nmedia.viewmodel.SignInViewModel
 
 
 class AppActivity : AppCompatActivity() {
+
+    private lateinit var dialogBuilder: AlertDialog.Builder
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val binding = ActivityAppBinding.inflate(layoutInflater)
+        val dialogSigninBinding = DialogSigninBinding.inflate(layoutInflater, null, false)
         setContentView(binding.root)
 
         intent?.let {
@@ -45,22 +59,114 @@ class AppActivity : AppCompatActivity() {
                 }
             )
         }
+
+        checkGoogleApiAvailability()
+
+        val viewModel by viewModels<AuthViewModel>()
+        val signInViewModel by viewModels<SignInViewModel>()
+
+        dialogBuilder = AlertDialog.Builder(this)
+        dialogBuilder.setView(dialogSigninBinding.root)
+            .setCancelable(true)
+            .setPositiveButton(R.string.dialog_signin) { dialog, id ->
+                val login = dialogSigninBinding.username.text.toString()
+                val password = dialogSigninBinding.password.text.toString()
+                signInViewModel.signIn(login, password)
+
+            }
+            .setNegativeButton(R.string.dialog_cancel) { dialog, id ->
+                dialog.cancel()
+            }
+
+        var oldMenuProvider: MenuProvider? = null
+
+        viewModel.data.observe(this) {
+            oldMenuProvider?.let(::removeMenuProvider)
+
+            addMenuProvider(object : MenuProvider {
+                override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                    menuInflater.inflate(R.menu.menu_auth, menu)
+                    val authorized = viewModel.isAuthorized
+                    if (authorized) {
+                        menu.setGroupVisible(R.id.authorized, true)
+                        menu.setGroupVisible(R.id.unauthorized, false)
+                    } else {
+                        menu.setGroupVisible(R.id.authorized, false)
+                        menu.setGroupVisible(R.id.unauthorized, true)
+                    }
+                }
+
+                override fun onMenuItemSelected(menuItem: MenuItem): Boolean =
+                    when (menuItem.itemId) {
+                        R.id.auth -> {
+//                                val parent:ViewGroup? = dialogSigninBinding.root.parent as? ViewGroup
+//                                parent?.removeView(dialogSigninBinding.root)
+//                                dialogBuilder.show()
+                            menuItem.onNavDestinationSelected(findNavController(R.id.navHostFragment))
+                            // findNavController(R.id.navHostFragment).navigate(R.id.toSignIn)
+                            // AppAuth.getInstance().setToken(Token(5L, "x-token"))
+                            true
+                        }
+
+                        R.id.register -> {
+                            findNavController(R.id.navHostFragment).navigate(R.id.toRegistrationFragment)
+                            true
+                        }
+
+                        R.id.logout -> {
+                            val destination =
+                                findNavController(R.id.navHostFragment).currentDestination
+                            destination?.let {
+                                if (it.id == R.id.newPostFragment) {
+                                    AlertDialog.Builder(this@AppActivity)
+                                        .setTitle(R.string.dialog_are_you_sure)
+                                        .setCancelable(false)
+                                        .setPositiveButton(R.string.dialog_ok) { dialog, id ->
+                                            AppAuth.getInstance().clearAuth()
+                                            findNavController(R.id.navHostFragment).navigateUp()
+                                        }
+                                        .setNegativeButton(R.string.dialog_cancel) { dialog, id ->
+                                            dialog.cancel()
+                                        }
+                                        .show()
+                                } else {
+                                    AppAuth.getInstance().clearAuth()
+                                }
+                            }
+
+
+                            true
+                        }
+
+                        else -> {
+                            false
+                        }
+                    }
+            }.apply {
+                oldMenuProvider = this
+            }, this)
+        }
+
     }
+
+
     private fun checkGoogleApiAvailability() {
         with(GoogleApiAvailability.getInstance()) {
             val code = isGooglePlayServicesAvailable(this@AppActivity)
             if (code == ConnectionResult.SUCCESS) {
                 return@with
             }
-            if (isUserResolvableError(code)){
+            if (isUserResolvableError(code)) {
                 getErrorDialog(this@AppActivity, code, 9000)?.show()
                 return
             }
-            Toast.makeText(this@AppActivity, R.string.google_api_unavailable, Toast.LENGTH_LONG).show()
+            Toast.makeText(this@AppActivity, R.string.google_api_unavailable, Toast.LENGTH_LONG)
+                .show()
         }
 
         FirebaseMessaging.getInstance().token.addOnSuccessListener {
             println(it)
         }
     }
+
 }

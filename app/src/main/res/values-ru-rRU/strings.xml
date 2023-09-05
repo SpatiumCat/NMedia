@@ -20,4 +20,19 @@
     <string name="error_loading">Что-то пошло не так. Попробуйте позднее</string>
     <string name="clear">Очистить</string>
     <string name="photo_pick_error">Ошибка загрузки изображения</string>
+    <string name="register">Регистрация</string>
+    <string name="authorize">Авторизация</string>
+    <string name="logout">Выход</string>
+    <string name="login">Логин</string>
+    <string name="password">Пароль</string>
+    <string name="dialog_cancel">Отмена</string>
+    <string name="dialog_signin">Войти</string>
+    <string name="dialog_are_you_sure">Вы уверены?</string>
+    <string name="title_sign_in">Авторизация</string>
+    <string name="title_registration">Регистрация</string>
+    <string name="register_button">Зарегистрироваться</string>
+    <string name="name_edittext">Имя</string>
+    <string name="confirm_the_password_edittext">Подтвердите пароль</string>
+    <string name="password_edittext">Пароль</string>
+    <string name="password_not_conf">Пароль не подтвержден</string>
 </resources>

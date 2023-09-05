@@ -96,7 +96,7 @@ class NewPostFragment : Fragment() {
             ImagePicker.with(this)
                 .galleryOnly()
                 .crop()
-                .createIntent(photoPickerContract::launch)
+                .createIntent { photoPickerContract.launch(it) }
         }
 
         viewModel.photo.observe(viewLifecycleOwner) { photo ->
