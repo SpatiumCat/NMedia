@@ -2,17 +2,34 @@ package ru.netology.nmedia.auth
 
 import android.content.Context
 import androidx.core.content.edit
+import androidx.work.Constraints
+import androidx.work.Data
+import androidx.work.ExistingWorkPolicy
+import androidx.work.NetworkType
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
+import com.google.firebase.ktx.Firebase
+import com.google.firebase.messaging.ktx.messaging
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
+import ru.netology.nmedia.api.AuthApi
+import ru.netology.nmedia.dto.PushToken
 import ru.netology.nmedia.dto.Token
+import ru.netology.nmedia.workers.SendPushWorker
 
 class AppAuth private constructor(
-    context: Context
+    private val context: Context
 ) {
     companion object {
         private const val TOKEN_KEY = "TOKEN_KEY"
         private const val ID_KEY = "ID_KEY"
         private const val AVATAR_KEY = "AVATAR_KEY"
+
         @Volatile
         private var INSTANCE: AppAuth? = null
 
@@ -39,22 +56,52 @@ class AppAuth private constructor(
         } else {
             _data.value = Token(id, token, avatar)
         }
+        sendPushToken()
+    }
+
+    fun sendPushToken(token: String? = null) {
+
+//        WorkManager.getInstance(context).enqueueUniqueWork(
+//            SendPushWorker.NAME,
+//            ExistingWorkPolicy.REPLACE,
+//            OneTimeWorkRequestBuilder<SendPushWorker>()
+//                .setConstraints(Constraints.Builder()
+//                    .setRequiredNetworkType(NetworkType.CONNECTED)
+//                    .build())
+//                .setInputData(
+//                    Data.Builder()
+//                        .putString(SendPushWorker.TOKEN_KEY, token)
+//                        .build()
+//                )
+//                .build()
+//        )
+
+        CoroutineScope(Dispatchers.Default).launch {
+            val pushToken = PushToken(token ?: Firebase.messaging.token.await())
+
+            runCatching {
+                AuthApi.retrofitService.sendPushToken(pushToken)
+            }
+        }
     }
 
     @Synchronized
     fun setToken(token: Token) {
+        println("token:${token.token}\nid:${token.id}")
         _data.value = token
         prefs.edit {
             putString(TOKEN_KEY, token.token)
             putLong(ID_KEY, token.id)
-            putString(AVATAR_KEY, token.avatar )
+            putString(AVATAR_KEY, token.avatar)
         }
-
+        sendPushToken()
     }
 
     @Synchronized
     fun clearAuth() {
         _data.value = null
         prefs.edit { clear() }
+
+        sendPushToken()
     }
 }
