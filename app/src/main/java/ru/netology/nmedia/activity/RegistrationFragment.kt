@@ -14,15 +14,16 @@ import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.github.dhaval2404.imagepicker.ImagePicker
 import com.google.android.material.snackbar.Snackbar
+import dagger.hilt.android.AndroidEntryPoint
 import ru.netology.nmedia.R
 import ru.netology.nmedia.databinding.FragmentRegistrationBinding
 import ru.netology.nmedia.model.PhotoModel
 import ru.netology.nmedia.viewmodel.RegistrationViewModel
-
+@AndroidEntryPoint
 class RegistrationFragment : Fragment() {
 
-    private var _binding: FragmentRegistrationBinding? = null
-    private val binding get() = _binding!!
+//    private var _binding: FragmentRegistrationBinding? = null
+//    private val binding get() = _binding!!
     private val registrationViewModel: RegistrationViewModel by viewModels(ownerProducer = ::requireParentFragment)
 
     private val avatarPickerContract =
@@ -47,7 +48,7 @@ class RegistrationFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
 
-        _binding = FragmentRegistrationBinding.inflate(inflater, container, false)
+        val binding = FragmentRegistrationBinding.inflate(inflater, container, false)
 
         registrationViewModel.dataState.observe(viewLifecycleOwner) { state ->
             binding.progressBarRegister.isVisible = state.loading
@@ -100,8 +101,8 @@ class RegistrationFragment : Fragment() {
         return binding.root
     }
 
-    override fun onDestroyView() {
-        _binding = null
-        super.onDestroyView()
-    }
+//    override fun onDestroyView() {
+//        _binding = null
+//        super.onDestroyView()
+//    }
 }

@@ -6,21 +6,26 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import ru.netology.nmedia.auth.AppAuth
 import ru.netology.nmedia.dto.Token
 import ru.netology.nmedia.model.FeedModelState
+import ru.netology.nmedia.repository.AuthRepository
 import ru.netology.nmedia.repository.AuthRepositoryImpl
 import ru.netology.nmedia.util.SingleLiveEvent
+import javax.inject.Inject
 
-class SignInViewModel : ViewModel() {
-
-    private val repository = AuthRepositoryImpl()
+@HiltViewModel
+class SignInViewModel @Inject constructor(
+    private val repository: AuthRepository,
+    appAuth: AppAuth
+) : ViewModel() {
 
     private var _dataState = MutableLiveData<FeedModelState>()
     val dataState: LiveData<FeedModelState> get() = _dataState
 
-    val dataAuth: LiveData<Token?> = AppAuth.getInstance().data.asLiveData()
+    val dataAuth: LiveData<Token?> = appAuth.data.asLiveData()
 
     private val _authorized = SingleLiveEvent<Unit>()
     val authorized: LiveData<Unit> get() = _authorized

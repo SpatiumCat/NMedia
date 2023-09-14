@@ -20,6 +20,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.github.dhaval2404.imagepicker.ImagePicker
+import dagger.hilt.android.AndroidEntryPoint
 import ru.netology.nmedia.R
 import ru.netology.nmedia.databinding.FragmentNewPostBinding
 import ru.netology.nmedia.model.PhotoModel
@@ -27,7 +28,7 @@ import ru.netology.nmedia.util.AndroidUtils
 import ru.netology.nmedia.util.StringArg
 import ru.netology.nmedia.viewmodel.PostViewModel
 
-
+@AndroidEntryPoint
 class NewPostFragment : Fragment() {
 
     val viewModel: PostViewModel by viewModels(ownerProducer = ::requireParentFragment)
@@ -94,7 +95,7 @@ class NewPostFragment : Fragment() {
 
         binding.takePhoto.setOnClickListener {
             ImagePicker.with(this)
-                .galleryOnly()
+                .cameraOnly()
                 .crop()
                 .createIntent { photoPickerContract.launch(it) }
         }

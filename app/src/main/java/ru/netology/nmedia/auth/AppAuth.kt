@@ -8,38 +8,36 @@ import androidx.work.ExistingWorkPolicy
 import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
-import com.google.firebase.ktx.Firebase
-import com.google.firebase.messaging.ktx.messaging
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.coroutineScope
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.tasks.await
-import ru.netology.nmedia.api.AuthApi
-import ru.netology.nmedia.dto.PushToken
 import ru.netology.nmedia.dto.Token
 import ru.netology.nmedia.workers.SendPushWorker
+import javax.inject.Inject
+import javax.inject.Singleton
 
-class AppAuth private constructor(
-     private val context: Context
+@Singleton
+class AppAuth @Inject constructor(
+    @ApplicationContext private val context: Context
 ) {
-    companion object {
-        private const val TOKEN_KEY = "TOKEN_KEY"
-        private const val ID_KEY = "ID_KEY"
-        private const val AVATAR_KEY = "AVATAR_KEY"
-
-        @Volatile
-        private var INSTANCE: AppAuth? = null
-        fun initApp(context: Context) {
-            INSTANCE = AppAuth(context)
-        }
-
-        fun getInstance(): AppAuth = requireNotNull(INSTANCE) {
-            "You must call initApp before"
-        }
-    }
+    private val TOKEN_KEY = "TOKEN_KEY"
+    private val ID_KEY = "ID_KEY"
+    private val AVATAR_KEY = "AVATAR_KEY"
+//    companion object {
+//        private const val TOKEN_KEY = "TOKEN_KEY"
+//        private const val ID_KEY = "ID_KEY"
+//        private const val AVATAR_KEY = "AVATAR_KEY"
+//
+//        @Volatile
+//        private var INSTANCE: AppAuth? = null
+//        fun initApp(context: Context) {
+//            INSTANCE = AppAuth(context)
+//        }
+//
+//        fun getInstance(): AppAuth = requireNotNull(INSTANCE) {
+//            "You must call initApp before"
+//        }
+//    }
 
     private val prefs = context.getSharedPreferences("auth", Context.MODE_PRIVATE)
     private val _data = MutableStateFlow<Token?>(null)
@@ -63,9 +61,11 @@ class AppAuth private constructor(
             SendPushWorker.NAME,
             ExistingWorkPolicy.REPLACE,
             OneTimeWorkRequestBuilder<SendPushWorker>()
-                .setConstraints(Constraints.Builder()
-                    .setRequiredNetworkType(NetworkType.CONNECTED)
-                    .build())
+                .setConstraints(
+                    Constraints.Builder()
+                        .setRequiredNetworkType(NetworkType.CONNECTED)
+                        .build()
+                )
                 .setInputData(
                     Data.Builder()
                         .putString(SendPushWorker.TOKEN_KEY, token)

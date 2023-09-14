@@ -43,8 +43,8 @@ interface AuthApiService {
     suspend fun sendPushToken(@Body body: PushToken): Response<Unit>
 }
 
-object AuthApi {
-    val retrofitService: AuthApiService by lazy {
-        retrofit.create()
-    }
-}
+//object AuthApi {
+//    val retrofitService: AuthApiService by lazy {
+//        retrofit.create()
+//    }
+//}
