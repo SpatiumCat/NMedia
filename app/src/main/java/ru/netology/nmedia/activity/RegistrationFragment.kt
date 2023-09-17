@@ -10,6 +10,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.net.toFile
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.github.dhaval2404.imagepicker.ImagePicker
@@ -24,7 +25,7 @@ class RegistrationFragment : Fragment() {
 
 //    private var _binding: FragmentRegistrationBinding? = null
 //    private val binding get() = _binding!!
-    private val registrationViewModel: RegistrationViewModel by viewModels(ownerProducer = ::requireParentFragment)
+    private val registrationViewModel: RegistrationViewModel by activityViewModels()
 
     private val avatarPickerContract =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {

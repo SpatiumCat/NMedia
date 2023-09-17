@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import com.bumptech.glide.Glide
 import dagger.hilt.android.AndroidEntryPoint
@@ -26,7 +27,7 @@ class ImageFragment : Fragment() {
     ): View {
 
         val binding = FragmentImageBinding.inflate(inflater, container, false)
-        val viewModel: PostViewModel by viewModels(ownerProducer = ::requireParentFragment)
+//        val viewModel: PostViewModel by activityViewModels()
 
         arguments?.textArg?.let {
             Glide.with(binding.image)

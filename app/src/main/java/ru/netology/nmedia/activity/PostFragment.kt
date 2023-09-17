@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import dagger.hilt.android.AndroidEntryPoint
@@ -27,7 +28,7 @@ class PostFragment : Fragment() {
     ): View {
 
         val binding = FragmentPostBinding.inflate(inflater, container, false)
-        val viewModel: PostViewModel by viewModels(ownerProducer = ::requireParentFragment)
+        val viewModel: PostViewModel by activityViewModels()
         val viewHolder = PostViewHolder(binding.post, object : OnInteractionListener {
             override fun onLike(post: Post) {
                 viewModel.likeById(post.id)

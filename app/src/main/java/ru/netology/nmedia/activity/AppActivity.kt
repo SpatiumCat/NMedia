@@ -72,7 +72,7 @@ class AppActivity : AppCompatActivity() {
 
         checkGoogleApiAvailability()
 
-        val viewModel by viewModels<AuthViewModel>()
+        val viewModel: AuthViewModel by viewModels<AuthViewModel>()
         val signInViewModel by viewModels<SignInViewModel>()
 
         dialogBuilder = AlertDialog.Builder(this)
