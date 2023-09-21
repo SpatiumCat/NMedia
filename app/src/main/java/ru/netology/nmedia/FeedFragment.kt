@@ -10,10 +10,12 @@ import android.view.ViewGroup
 import androidx.appcompat.app.AlertDialog
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.RecyclerView.AdapterDataObserver
 import com.google.android.material.snackbar.Snackbar
+import dagger.hilt.android.AndroidEntryPoint
 import ru.netology.nmedia.activity.NewPostFragment.Companion.textArg
 import ru.netology.nmedia.adapter.OnInteractionListener
 import ru.netology.nmedia.adapter.PostAdapter
@@ -24,6 +26,7 @@ import ru.netology.nmedia.viewmodel.PostViewModel
 import ru.netology.nmedia.viewmodel.SignInViewModel
 import java.util.*
 
+@AndroidEntryPoint
 class FeedFragment : Fragment() {
 
     private lateinit var dialogBuilder: AlertDialog.Builder
@@ -34,9 +37,9 @@ class FeedFragment : Fragment() {
     ): View {
 
         val binding = FragmentFeedBinding.inflate(layoutInflater, container, false)
-        val viewModel: PostViewModel by viewModels(ownerProducer = ::requireParentFragment)
-        val authViewModel: AuthViewModel by viewModels(ownerProducer = ::requireParentFragment)
-        val signInViewModel: SignInViewModel by viewModels(ownerProducer = ::requireParentFragment)
+        val viewModel: PostViewModel by activityViewModels()
+        val authViewModel: AuthViewModel by activityViewModels()
+        val signInViewModel: SignInViewModel by activityViewModels()
         val dialogSigninBinding = DialogSigninBinding.inflate(layoutInflater)
 
         dialogBuilder = AlertDialog.Builder(requireActivity())

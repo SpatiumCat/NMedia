@@ -9,16 +9,22 @@ import androidx.core.app.NotificationManagerCompat
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import com.google.gson.Gson
+import dagger.hilt.android.AndroidEntryPoint
 import ru.netology.nmedia.Post
 import ru.netology.nmedia.R
+import ru.netology.nmedia.auth.AppAuth
+import ru.netology.nmedia.dto.PushMessage
+import javax.inject.Inject
 import kotlin.random.Random
 
-
+@AndroidEntryPoint
 class FCMService : FirebaseMessagingService() {
     private val action = "action"
     private val content = "content"
     private val channelId = "remote"
     private val gson = Gson()
+    @Inject
+    lateinit var appAuth: AppAuth
 
     override fun onCreate() {
         super.onCreate()
@@ -36,6 +42,14 @@ class FCMService : FirebaseMessagingService() {
 
     override fun onMessageReceived(message: RemoteMessage) {
 
+        try {
+            handlePushMessage(
+                gson.fromJson(message.data[content], PushMessage::class.java)
+            )
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+
         message.data[action]?.let {
             try {
                 when (Action.valueOf(it)) {
@@ -50,6 +64,7 @@ class FCMService : FirebaseMessagingService() {
 
     override fun onNewToken(token: String) {
         println(token)
+        appAuth.sendPushToken(token)
     }
 
     private fun handleLike(content: Like) {
@@ -81,6 +96,27 @@ class FCMService : FirebaseMessagingService() {
 
         NotificationManagerCompat.from(this)
             .notify(Random.nextInt(100_000), notification)
+    }
+
+    private fun notifyPushMessage(content: String) {
+        val notification = NotificationCompat.Builder(this, channelId)
+            .setSmallIcon(R.drawable.ic_notification)
+            .setContentText(content)
+            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+            .build()
+
+        NotificationManagerCompat.from(this)
+            .notify(Random.nextInt(100_000), notification)
+    }
+
+    private fun handlePushMessage(content: PushMessage) {
+        val id = appAuth.data.value?.id
+        content.recipientId?.let {
+            when {
+                it == id -> notifyPushMessage(content.content)
+                else -> appAuth.sendPushToken()
+            }
+        } ?: notifyPushMessage(content.content)
     }
 }
 

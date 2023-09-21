@@ -21,34 +21,34 @@ import ru.netology.nmedia.auth.AppAuth
 import ru.netology.nmedia.dto.Media
 import java.util.concurrent.TimeUnit
 
-const val BASE_URL = "${BuildConfig.BASE_URL}/api/slow/"
-
-private val logging = HttpLoggingInterceptor().apply {
-    if (BuildConfig.DEBUG) {
-        level = HttpLoggingInterceptor.Level.BODY
-    }
-}
-
-private val client = OkHttpClient.Builder()
-    .addInterceptor(logging)
-    .addInterceptor { chain ->
-        val request = AppAuth.getInstance().data.value?.token?.let { token ->
-            chain.request()
-                .newBuilder()
-                .addHeader("Authorization", token)
-                .build()
-        } ?: chain.request()
-
-        chain.proceed(request)
-    }
-    .connectTimeout(30, TimeUnit.SECONDS)
-    .build()
-
-val retrofit = Retrofit.Builder()
-    .addConverterFactory(GsonConverterFactory.create())
-    .baseUrl(BASE_URL)
-    .client(client)
-    .build()
+//const val BASE_URL = "${BuildConfig.BASE_URL}/api/slow/"
+//
+//private val logging = HttpLoggingInterceptor().apply {
+//    if (BuildConfig.DEBUG) {
+//        level = HttpLoggingInterceptor.Level.BODY
+//    }
+//}
+//
+//private val client = OkHttpClient.Builder()
+//    .addInterceptor(logging)
+//    .addInterceptor { chain ->
+//        val request = AppAuth.getInstance().data.value?.token?.let { token ->
+//            chain.request()
+//                .newBuilder()
+//                .addHeader("Authorization", token)
+//                .build()
+//        } ?: chain.request()
+//
+//        chain.proceed(request)
+//    }
+//    .connectTimeout(30, TimeUnit.SECONDS)
+//    .build()
+//
+//val retrofit = Retrofit.Builder()
+//    .addConverterFactory(GsonConverterFactory.create())
+//    .baseUrl(BASE_URL)
+//    .client(client)
+//    .build()
 
 interface PostApiService {
 
@@ -79,8 +79,8 @@ interface PostApiService {
 
 }
 
-object PostApi {
-    val retrofitService: PostApiService by lazy {
-        retrofit.create()
-    }
-}
+//object PostApi {
+//    val retrofitService: PostApiService by lazy {
+//        retrofit.create()
+//    }
+//}

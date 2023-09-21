@@ -16,6 +16,7 @@ import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.messaging.FirebaseMessaging
+import dagger.hilt.android.AndroidEntryPoint
 import ru.netology.nmedia.R
 import ru.netology.nmedia.activity.NewPostFragment.Companion.textArg
 import ru.netology.nmedia.auth.AppAuth
@@ -23,9 +24,18 @@ import ru.netology.nmedia.databinding.ActivityAppBinding
 import ru.netology.nmedia.databinding.DialogSigninBinding
 import ru.netology.nmedia.viewmodel.AuthViewModel
 import ru.netology.nmedia.viewmodel.SignInViewModel
+import javax.inject.Inject
 
 
+@AndroidEntryPoint
 class AppActivity : AppCompatActivity() {
+
+    @Inject
+    lateinit var appAuth: AppAuth
+    @Inject
+    lateinit var googleApiAvailability: GoogleApiAvailability
+    @Inject
+    lateinit var firebaseMessaging: FirebaseMessaging
 
     private lateinit var dialogBuilder: AlertDialog.Builder
 
@@ -62,7 +72,7 @@ class AppActivity : AppCompatActivity() {
 
         checkGoogleApiAvailability()
 
-        val viewModel by viewModels<AuthViewModel>()
+        val viewModel: AuthViewModel by viewModels<AuthViewModel>()
         val signInViewModel by viewModels<SignInViewModel>()
 
         dialogBuilder = AlertDialog.Builder(this)
@@ -99,12 +109,7 @@ class AppActivity : AppCompatActivity() {
                 override fun onMenuItemSelected(menuItem: MenuItem): Boolean =
                     when (menuItem.itemId) {
                         R.id.auth -> {
-//                                val parent:ViewGroup? = dialogSigninBinding.root.parent as? ViewGroup
-//                                parent?.removeView(dialogSigninBinding.root)
-//                                dialogBuilder.show()
                             menuItem.onNavDestinationSelected(findNavController(R.id.navHostFragment))
-                            // findNavController(R.id.navHostFragment).navigate(R.id.toSignIn)
-                            // AppAuth.getInstance().setToken(Token(5L, "x-token"))
                             true
                         }
 
@@ -122,7 +127,7 @@ class AppActivity : AppCompatActivity() {
                                         .setTitle(R.string.dialog_are_you_sure)
                                         .setCancelable(false)
                                         .setPositiveButton(R.string.dialog_ok) { dialog, id ->
-                                            AppAuth.getInstance().clearAuth()
+                                            appAuth.clearAuth()
                                             findNavController(R.id.navHostFragment).navigateUp()
                                         }
                                         .setNegativeButton(R.string.dialog_cancel) { dialog, id ->
@@ -130,11 +135,9 @@ class AppActivity : AppCompatActivity() {
                                         }
                                         .show()
                                 } else {
-                                    AppAuth.getInstance().clearAuth()
+                                    appAuth.clearAuth()
                                 }
                             }
-
-
                             true
                         }
 
@@ -151,7 +154,7 @@ class AppActivity : AppCompatActivity() {
 
 
     private fun checkGoogleApiAvailability() {
-        with(GoogleApiAvailability.getInstance()) {
+        with(googleApiAvailability) {
             val code = isGooglePlayServicesAvailable(this@AppActivity)
             if (code == ConnectionResult.SUCCESS) {
                 return@with
@@ -164,7 +167,7 @@ class AppActivity : AppCompatActivity() {
                 .show()
         }
 
-        FirebaseMessaging.getInstance().token.addOnSuccessListener {
+        firebaseMessaging.token.addOnSuccessListener {
             println(it)
         }
     }

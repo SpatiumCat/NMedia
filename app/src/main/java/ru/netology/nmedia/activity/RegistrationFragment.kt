@@ -10,20 +10,22 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.net.toFile
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.github.dhaval2404.imagepicker.ImagePicker
 import com.google.android.material.snackbar.Snackbar
+import dagger.hilt.android.AndroidEntryPoint
 import ru.netology.nmedia.R
 import ru.netology.nmedia.databinding.FragmentRegistrationBinding
 import ru.netology.nmedia.model.PhotoModel
 import ru.netology.nmedia.viewmodel.RegistrationViewModel
-
+@AndroidEntryPoint
 class RegistrationFragment : Fragment() {
 
-    private var _binding: FragmentRegistrationBinding? = null
-    private val binding get() = _binding!!
-    private val registrationViewModel: RegistrationViewModel by viewModels(ownerProducer = ::requireParentFragment)
+//    private var _binding: FragmentRegistrationBinding? = null
+//    private val binding get() = _binding!!
+    private val registrationViewModel: RegistrationViewModel by activityViewModels()
 
     private val avatarPickerContract =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
@@ -47,7 +49,7 @@ class RegistrationFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
 
-        _binding = FragmentRegistrationBinding.inflate(inflater, container, false)
+        val binding = FragmentRegistrationBinding.inflate(inflater, container, false)
 
         registrationViewModel.dataState.observe(viewLifecycleOwner) { state ->
             binding.progressBarRegister.isVisible = state.loading
@@ -100,8 +102,8 @@ class RegistrationFragment : Fragment() {
         return binding.root
     }
 
-    override fun onDestroyView() {
-        _binding = null
-        super.onDestroyView()
-    }
+//    override fun onDestroyView() {
+//        _binding = null
+//        super.onDestroyView()
+//    }
 }

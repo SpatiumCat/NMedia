@@ -1,25 +1,26 @@
 package ru.netology.nmedia.repository
 
 
-import androidx.lifecycle.LiveData
+import android.content.Context
+import dagger.hilt.EntryPoint
+import dagger.hilt.InstallIn
+import dagger.hilt.android.EntryPointAccessors
+import dagger.hilt.android.qualifiers.ApplicationContext
+import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
-import retrofit2.http.POST
 import ru.netology.nmedia.Attachment
 import ru.netology.nmedia.Post
-import ru.netology.nmedia.api.PostApi
+import ru.netology.nmedia.api.PostApiService
+import ru.netology.nmedia.auth.AppAuth
 import ru.netology.nmedia.dao.DraftDao
 import ru.netology.nmedia.dao.PostDao
 import ru.netology.nmedia.dto.Media
@@ -33,15 +34,27 @@ import ru.netology.nmedia.error.NetworkError
 import ru.netology.nmedia.error.UnknownError
 import ru.netology.nmedia.model.PhotoModel
 import java.io.IOException
-import java.lang.Exception
+import javax.inject.Inject
 
 
 //const val BASE_URL = "http://192.168.0.212:9999"
 
-class PostRepositoryImpl(
+class PostRepositoryImpl @Inject constructor(
     private val draftDao: DraftDao,
-    private val postDao: PostDao
+    private val postDao: PostDao,
+    @ApplicationContext private val context: Context
 ) : PostRepository {
+
+    @EntryPoint
+    @InstallIn(SingletonComponent::class)
+    interface PostRepositoryImplEntryPoint {
+        fun getPostApiService(): PostApiService
+        fun getAppAuth(): AppAuth
+    }
+    val entryPoint = EntryPointAccessors.fromApplication(
+        context,
+        PostRepositoryImplEntryPoint::class.java
+    )
 
     private var posts = emptyList<Post>()
 
@@ -57,7 +70,7 @@ class PostRepositoryImpl(
             delay(10_000)
 
             try {
-                val response = PostApi.retrofitService.getNewer(id)
+                val response = entryPoint.getPostApiService().getNewer(id)
                 if (!response.isSuccessful) {
                     throw ApiError(response.code(), response.message())
                 }
@@ -76,7 +89,7 @@ class PostRepositoryImpl(
 
     override suspend fun getAll() {
         try {
-            val response = PostApi.retrofitService.getAll()
+            val response = entryPoint.getPostApiService().getAll()
             if (!response.isSuccessful) {
                 throw ApiError(response.code(), response.message())
             }
@@ -94,7 +107,7 @@ class PostRepositoryImpl(
         val oldPost = posts.find { it.id == id }
         try {
             postDao.likeById(id)
-            val response = PostApi.retrofitService.likeById(id)
+            val response = entryPoint.getPostApiService().likeById(id)
             if (!response.isSuccessful) {
                 throw ApiError(response.code(), response.message())
             }
@@ -112,7 +125,7 @@ class PostRepositoryImpl(
     override suspend fun deleteLikeById(id: Long) {
         try {
             postDao.likeById(id)
-            val response = PostApi.retrofitService.deleteLikeById(id)
+            val response = entryPoint.getPostApiService().deleteLikeById(id)
             if (!response.isSuccessful) {
                 throw ApiError(response.code(), response.message())
             }
@@ -132,7 +145,7 @@ class PostRepositoryImpl(
         val oldPost = posts.find { it.id == id }
         try {
             postDao.removeById(id)
-            val response = PostApi.retrofitService.removeById(id)
+            val response = entryPoint.getPostApiService().removeById(id)
             if (!response.isSuccessful) {
                 throw ApiError(response.code(), response.message())
             }
@@ -161,7 +174,7 @@ class PostRepositoryImpl(
                     ), hidden = false
                 )
             )
-            val response = PostApi.retrofitService.save(post)
+            val response = entryPoint.getPostApiService().save(post)
             if (!response.isSuccessful) {
                 throw ApiError(response.code(), response.message())
             }
@@ -189,7 +202,7 @@ class PostRepositoryImpl(
                     ), hidden = false
                 )
             )
-            val response = PostApi.retrofitService.save(
+            val response = entryPoint.getPostApiService().save(
                 post.copy(
                     attachment = Attachment(
                         media.id,
@@ -212,7 +225,7 @@ class PostRepositoryImpl(
     }
 
     private suspend fun uploadMedia(model: PhotoModel): Media {
-        val response = PostApi.retrofitService.uploadMedia(
+        val response = entryPoint.getPostApiService().uploadMedia(
             MultipartBody.Part.createFormData("file", "file", model.file.asRequestBody())
         )
         if (!response.isSuccessful) {
@@ -224,7 +237,7 @@ class PostRepositoryImpl(
     override suspend fun retrySaving(post: Post) {
 
         try {
-            val response = PostApi.retrofitService.save(post.copy(id = 0))
+            val response = entryPoint.getPostApiService().save(post.copy(id = 0))
             if (!response.isSuccessful) {
                 throw ApiError(response.code(), response.message())
             }

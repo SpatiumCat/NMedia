@@ -1,13 +1,16 @@
 package ru.netology.nmedia.viewmodel
 
 import android.app.Application
+import android.content.Context
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.distinctUntilChanged
 import androidx.lifecycle.switchMap
 import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
@@ -22,6 +25,7 @@ import ru.netology.nmedia.model.PhotoModel
 import ru.netology.nmedia.repository.PostRepository
 import ru.netology.nmedia.repository.PostRepositoryImpl
 import ru.netology.nmedia.util.SingleLiveEvent
+import javax.inject.Inject
 
 private val empty = Post(
     id = 0,
@@ -33,15 +37,14 @@ private val empty = Post(
     video = "",
     attachment = null
 )
+@HiltViewModel
+class PostViewModel @Inject constructor(
+    private val repository: PostRepository,
+    appAuth: AppAuth
+) : ViewModel() {
 
-class PostViewModel(application: Application) : AndroidViewModel(application) {
 
-    private val repository: PostRepository = PostRepositoryImpl(
-        AppDb.getInstance(application).draftDao(),
-        AppDb.getInstance(application).postDao()
-    )
-
-    val data: LiveData<FeedModel> = AppAuth.getInstance().data.flatMapLatest { token ->
+    val data: LiveData<FeedModel> = appAuth.data.flatMapLatest { token ->
         repository.data
             .map { posts ->
                 posts.map {
@@ -54,7 +57,7 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
     }
         .asLiveData(Dispatchers.Default)
 
-    val dataToken: LiveData<Token?> = AppAuth.getInstance().data.asLiveData(Dispatchers.Default)
+    val dataToken: LiveData<Token?> = appAuth.data.asLiveData(Dispatchers.Default)
 
 
     private val _dataState = MutableLiveData<FeedModelState>()
