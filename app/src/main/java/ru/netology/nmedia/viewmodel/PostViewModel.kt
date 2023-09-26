@@ -10,10 +10,16 @@ import androidx.lifecycle.asLiveData
 import androidx.lifecycle.distinctUntilChanged
 import androidx.lifecycle.switchMap
 import androidx.lifecycle.viewModelScope
+import androidx.paging.PagingData
+import androidx.paging.cachedIn
+import androidx.paging.map
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.switchMap
 import kotlinx.coroutines.launch
 import ru.netology.nmedia.Post
 import ru.netology.nmedia.auth.AppAuth
@@ -37,6 +43,7 @@ private val empty = Post(
     video = "",
     attachment = null
 )
+
 @HiltViewModel
 class PostViewModel @Inject constructor(
     private val repository: PostRepository,
@@ -44,18 +51,17 @@ class PostViewModel @Inject constructor(
 ) : ViewModel() {
 
 
-    val data: LiveData<FeedModel> = appAuth.data.flatMapLatest { token ->
-        repository.data
-            .map { posts ->
-                posts.map {
+    private val cached = repository.data.cachedIn(viewModelScope)
+
+
+    val data: Flow<PagingData<Post>> = appAuth.data.flatMapLatest { token ->
+        cached
+            .map { pagingData ->
+                pagingData.map {
                     it.copy(ownedByMe = it.authorId == token?.id)
                 }
             }
-            .map {
-                FeedModel(posts = it)
-            }
-    }
-        .asLiveData(Dispatchers.Default)
+    }.flowOn(Dispatchers.Default)
 
     val dataToken: LiveData<Token?> = appAuth.data.asLiveData(Dispatchers.Default)
 
@@ -77,10 +83,10 @@ class PostViewModel @Inject constructor(
 
     var draft: String = ""
 
-    val newerCount: LiveData<Int> = data.switchMap {
-        repository.getNewer(it.posts.firstOrNull()?.id ?: 0L)
-            .asLiveData(Dispatchers.Default)
-    }.distinctUntilChanged()
+//    val newerCount: LiveData<Int> = data.switchMap {
+//        repository.getNewer(it.posts.firstOrNull()?.id ?: 0L)
+//            .asLiveData(Dispatchers.Default)
+//    }.distinctUntilChanged()
 
 
     init {
@@ -162,30 +168,28 @@ class PostViewModel @Inject constructor(
         }
     }
 
-    fun likeById(id: Long) {
-        val oldPost = data.value?.posts?.find { it.id == id }?.let {
-            if (it.likedByMe) {
-                viewModelScope.launch {
-                    try {
-                        repository.deleteLikeById(id)
-                        _dataState.value = FeedModelState()
-                    } catch (e: Exception) {
-                        _dataState.value = FeedModelState(error = true)
+    fun likeById(id: Long, likeByMe: Boolean) {
+        //val oldPost = data.value?.posts?.find { it.id == id }?.let {
+        if (likeByMe) {
+            viewModelScope.launch {
+                try {
+                    repository.deleteLikeById(id)
+                    _dataState.value = FeedModelState()
+                } catch (e: Exception) {
+                    _dataState.value = FeedModelState(error = true)
 
-                    }
                 }
-            } else {
-                viewModelScope.launch {
-                    try {
-                        repository.likeById(id)
-                        _dataState.value = FeedModelState()
-                    } catch (e: Exception) {
-                        _dataState.value = FeedModelState(error = true)
-                    }
+            }
+        } else {
+            viewModelScope.launch {
+                try {
+                    repository.likeById(id)
+                    _dataState.value = FeedModelState()
+                } catch (e: Exception) {
+                    _dataState.value = FeedModelState(error = true)
                 }
             }
         }
-
     }
 
 

@@ -2,6 +2,9 @@ package ru.netology.nmedia.repository
 
 
 import android.content.Context
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.cachedIn
 import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
 import dagger.hilt.android.EntryPointAccessors
@@ -58,10 +61,27 @@ class PostRepositoryImpl @Inject constructor(
 
     private var posts = emptyList<Post>()
 
-    override val data: Flow<List<Post>> = postDao.getAllVisible()
-        .map(List<PostEntity>::toDto)
-        .onEach { posts = it }
-        .flowOn(Dispatchers.Default)
+//    override val data: Flow<List<Post>> = postDao.getAllVisible()
+//        .map(List<PostEntity>::toDto)
+//        .onEach { posts = it }
+//        .flowOn(Dispatchers.Default)
+
+//    override val data = Pager(
+//        config = PagingConfig(pageSize = 10, enablePlaceholders = false),
+//        pagingSourceFactory = {
+//            PostPagingSource(
+//                entryPoint.getPostApiService()
+//            )
+//        }
+//    ).flow
+
+    override val data = Pager(
+        config = PagingConfig(pageSize = 10, enablePlaceholders = false),
+        pagingSourceFactory = {
+           postDao.getAllPage()
+        }
+    ).flow
+
 
 
     override fun getNewer(id: Long): Flow<Int> = flow {
