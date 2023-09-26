@@ -17,6 +17,7 @@ import javax.inject.Inject
 
 @OptIn(ExperimentalPagingApi::class)
 class PostRemoteMediator @Inject constructor(
+    private val count: Int,
     private val apiService: PostApiService,
     private val appDb: AppDb
 ) : RemoteMediator<Long, Post>() {
@@ -25,24 +26,30 @@ class PostRemoteMediator @Inject constructor(
 
     override suspend fun load(loadType: LoadType, state: PagingState<Long, Post>): MediatorResult {
         return try {
-            val loadKey = when (loadType) {
-                LoadType.REFRESH -> null
-                LoadType.PREPEND -> return MediatorResult.Success(endOfPaginationReached = true)
-                LoadType.APPEND -> {
-                    val lastItem = state.lastItemOrNull()
-                    if (lastItem == null) {
-                        return MediatorResult.Success(endOfPaginationReached = true)
-                    }
-                    lastItem.id
+
+            val result = when (loadType) {
+                LoadType.REFRESH -> {
+                    apiService.getLatest(count)
                 }
+                LoadType.PREPEND -> {
+                    return MediatorResult.Success(endOfPaginationReached = true)
+                }
+                LoadType.APPEND -> {
+                    apiService.getBefore(state.lastItemOrNull()?.id ?: 1L, count)
+                }
+
             }
-            val response = apiService.getNewer(loadKey ?: 1)
-            if (!response.isSuccessful) {
-                throw ApiError(response.code(), response.message())
+
+
+            if (!result.isSuccessful) {
+                throw ApiError(result.code(), result.message())
             }
-            val body = response.body() ?: throw ApiError(response.code(), response.message())
+            val body = result.body() ?: throw ApiError(result.code(), result.message())
 
             appDb.withTransaction {
+                if (loadType == LoadType.REFRESH) {
+                    postDao.clearAll()
+                }
                 postDao.insert(body.map { it.copy(isSaved = true) }.toEntity(hidden = true))
             }
 
