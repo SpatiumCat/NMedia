@@ -11,6 +11,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.lastOrNull
 import ru.netology.nmedia.Post
 import ru.netology.nmedia.R
 import ru.netology.nmedia.activity.NewPostFragment.Companion.textArg
@@ -31,7 +32,7 @@ class PostFragment : Fragment() {
         val viewModel: PostViewModel by activityViewModels()
         val viewHolder = PostViewHolder(binding.post, object : OnInteractionListener {
             override fun onLike(post: Post) {
-                viewModel.likeById(post.id)
+                viewModel.likeById(post.id, post.likedByMe)
             }
 
             override fun onShare(post: Post) {
@@ -73,32 +74,31 @@ class PostFragment : Fragment() {
             }
         })
 
+//        val currentPost = arguments?.textArg?.let {
+//            viewModel.data.value?.posts?.find { post -> post.id == it.toLong() }
+//        }
+//        if (currentPost != null) {
+//            viewHolder.bind(currentPost)
+//        }
+//        viewModel.data.observe(viewLifecycleOwner) {
+//            val updatedPost = it.posts.find { post -> post.id == currentPost?.id }
+//            if (updatedPost != null) {
+//                viewHolder.bind(updatedPost)
+//            }
+//        }
 
-        val currentPost = arguments?.textArg?.let {
-            viewModel.data.value?.posts?.find { post -> post.id == it.toLong() }
-        }
-        if (currentPost != null) {
-            viewHolder.bind(currentPost)
-        }
-        viewModel.data.observe(viewLifecycleOwner) {
-            val updatedPost = it.posts.find { post -> post.id == currentPost?.id }
-            if (updatedPost != null) {
-                viewHolder.bind(updatedPost)
-            }
-        }
-
-        binding.post.imageAttachmentView.setOnClickListener {
-            findNavController().navigate(
-                R.id.action_postFragment_to_imageFragment,
-                Bundle().apply {
-                    currentPost?.let {
-                        if (it.attachment != null) {
-                            textArg = it.attachment.url
-                        }
-                    }
-                }
-            )
-        }
+//        binding.post.imageAttachmentView.setOnClickListener {
+//            findNavController().navigate(
+//                R.id.action_postFragment_to_imageFragment,
+//                Bundle().apply {
+//                    currentPost?.let {
+//                        if (it.attachment != null) {
+//                            textArg = it.attachment.url
+//                        }
+//                    }
+//                }
+//            )
+//        }
 
         return binding.root
     }

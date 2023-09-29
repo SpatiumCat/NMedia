@@ -12,10 +12,14 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import androidx.paging.LoadState
 import androidx.recyclerview.widget.RecyclerView.AdapterDataObserver
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 import ru.netology.nmedia.activity.NewPostFragment.Companion.textArg
 import ru.netology.nmedia.adapter.OnInteractionListener
 import ru.netology.nmedia.adapter.PostAdapter
@@ -45,13 +49,13 @@ class FeedFragment : Fragment() {
         dialogBuilder = AlertDialog.Builder(requireActivity())
         dialogBuilder.setView(dialogSigninBinding.root)
             .setCancelable(true)
-            .setPositiveButton(R.string.dialog_signin) { dialog, id ->
+            .setPositiveButton(R.string.dialog_signin) { _, _ ->
                 val login = dialogSigninBinding.username.text.toString()
                 val password = dialogSigninBinding.password.text.toString()
                 signInViewModel.signIn(login, password)
 
             }
-            .setNegativeButton(R.string.dialog_cancel) {dialog, id ->
+            .setNegativeButton(R.string.dialog_cancel) { dialog, _ ->
                 dialog.cancel()
             }
 
@@ -60,12 +64,12 @@ class FeedFragment : Fragment() {
 
             override fun onLike(post: Post) {
                 if (!authViewModel.isAuthorized) {
-                    val parent:ViewGroup? = dialogSigninBinding.root.parent as? ViewGroup
+                    val parent: ViewGroup? = dialogSigninBinding.root.parent as? ViewGroup
                     parent?.removeView(dialogSigninBinding.root)
                     dialogBuilder.show()
                     return
                 }
-                viewModel.likeById(post.id)
+                viewModel.likeById(post.id, post.likedByMe)
             }
 
             override fun onShare(post: Post) {
@@ -116,16 +120,24 @@ class FeedFragment : Fragment() {
 
 
         binding.list.adapter = adapter
-        viewModel.data.observe(viewLifecycleOwner) { state ->
-            val newPost = adapter.currentList.size < state.posts.size
-            adapter.submitList(state.posts) {
-                if (newPost) binding.list.smoothScrollToPosition(0)
-            }
-            binding.emptyText.isVisible = state.empty
 
+
+        lifecycleScope.launch {
+            viewModel.data.collectLatest {
+                adapter.submitData(it)
+            }
         }
 
-        adapter.registerAdapterDataObserver(object: AdapterDataObserver() {
+
+//        viewModel.data.observe(viewLifecycleOwner) { state ->
+//            val newPost = adapter.currentList.size < state.posts.size
+//            adapter.submitList(state.posts) {
+//                if (newPost) binding.list.smoothScrollToPosition(0)
+//            }
+//            binding.emptyText.isVisible = state.empty
+//        }
+
+        adapter.registerAdapterDataObserver(object : AdapterDataObserver() {
             override fun onItemRangeInserted(positionStart: Int, itemCount: Int) {
                 if (positionStart == 0) {
                     binding.list.smoothScrollToPosition(0)
@@ -145,12 +157,12 @@ class FeedFragment : Fragment() {
             }
         }
 
-        viewModel.newerCount.observe(viewLifecycleOwner) {
-            when  {
-                it == 0 -> binding.newerPostButton.visibility = View.GONE
-                it > 0 -> binding.newerPostButton.visibility = View.VISIBLE
-            }
-        }
+//        viewModel.newerCount.observe(viewLifecycleOwner) {
+//            when {
+//                it == 0 -> binding.newerPostButton.visibility = View.GONE
+//                it > 0 -> binding.newerPostButton.visibility = View.VISIBLE
+//            }
+//        }
 
         binding.newerPostButton.setOnClickListener {
             viewModel.showAllPosts()
@@ -171,8 +183,20 @@ class FeedFragment : Fragment() {
             findNavController().navigate(R.id.action_feedFragment_to_newPostFragment)
         }
 
+        lifecycleScope.launch {
+            adapter.loadStateFlow.collectLatest {
+                binding.swiperefresh.isRefreshing =
+                    it.refresh is LoadState.Loading
+                            || it.append is LoadState.Loading
+                            || it.prepend is LoadState.Loading
+            }
+        }
+        authViewModel.data.observe(viewLifecycleOwner){
+            adapter.refresh()
+        }
+
         binding.swiperefresh.setOnRefreshListener {
-            viewModel.refresh()
+            adapter.refresh()
         }
         return binding.root
     }
