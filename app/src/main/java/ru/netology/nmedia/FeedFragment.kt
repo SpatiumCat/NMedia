@@ -137,25 +137,25 @@ class FeedFragment : Fragment() {
 //            binding.emptyText.isVisible = state.empty
 //        }
 
-        adapter.registerAdapterDataObserver(object : AdapterDataObserver() {
-            override fun onItemRangeInserted(positionStart: Int, itemCount: Int) {
-                if (positionStart == 0) {
-                    binding.list.smoothScrollToPosition(0)
-                }
-            }
-        })
+//        adapter.registerAdapterDataObserver(object : AdapterDataObserver() {
+//            override fun onItemRangeInserted(positionStart: Int, itemCount: Int) {
+//                if (positionStart == 0) {
+//                    binding.list.smoothScrollToPosition(0)
+//                }
+//            }
+//        })
 
-        viewModel.dataState.observe(viewLifecycleOwner) { state ->
-            binding.progress.isVisible = state.loading
-            binding.swiperefresh.isRefreshing = state.refreshing
-            if (state.error) {
-                Snackbar.make(
-                    binding.root, R.string.error_loading, Snackbar.LENGTH_LONG
-                )
-                    .setAction(R.string.retry_loading) { viewModel.loadPosts() }
-                    .show()
-            }
-        }
+//        viewModel.dataState.observe(viewLifecycleOwner) { state ->
+//            binding.progress.isVisible = state.loading
+//            binding.swiperefresh.isRefreshing = state.refreshing
+//            if (state.error) {
+//                Snackbar.make(
+//                    binding.root, R.string.error_loading, Snackbar.LENGTH_LONG
+//                )
+//                    .setAction(R.string.retry_loading) { viewModel.loadPosts() }
+//                    .show()
+//            }
+//        }
 
 //        viewModel.newerCount.observe(viewLifecycleOwner) {
 //            when {
@@ -164,10 +164,10 @@ class FeedFragment : Fragment() {
 //            }
 //        }
 
-        binding.newerPostButton.setOnClickListener {
-            viewModel.showAllPosts()
-            it.visibility = View.GONE
-        }
+//        binding.newerPostButton.setOnClickListener {
+//            viewModel.showAllPosts()
+//            it.visibility = View.GONE
+//        }
 
 //        binding.retryButton.setOnClickListener {
 //            viewModel.loadPosts()

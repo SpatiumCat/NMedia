@@ -53,8 +53,7 @@ import java.util.concurrent.TimeUnit
 
 interface PostApiService {
 
-    @GET("posts")
-    suspend fun getAll(): Response<List<Post>>
+
 
     @GET("posts/latest")
     suspend fun getLatest(@Query("count")count: Int): Response<List<Post>>

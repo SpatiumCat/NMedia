@@ -90,33 +90,33 @@ class PostViewModel @Inject constructor(
 
 
     init {
-        loadPosts()
+       // loadPosts()
         loadDraft()
     }
 
-    fun loadPosts() {
-        viewModelScope.launch {
-            try {
-                _dataState.value = FeedModelState(loading = true)
-                repository.getAll()
-                _dataState.value = FeedModelState()
-            } catch (e: Exception) {
-                _dataState.value = FeedModelState(error = true)
-            }
-        }
-    }
+//    fun loadPosts() {
+//        viewModelScope.launch {
+//            try {
+//                _dataState.value = FeedModelState(loading = true)
+//                repository.getAll()
+//                _dataState.value = FeedModelState()
+//            } catch (e: Exception) {
+//                _dataState.value = FeedModelState(error = true)
+//            }
+//        }
+//    }
 
-    fun refresh() {
-        viewModelScope.launch {
-            try {
-                _dataState.value = FeedModelState(refreshing = true)
-                repository.getAll()
-                _dataState.value = FeedModelState()
-            } catch (e: Exception) {
-                _dataState.value = FeedModelState(error = true)
-            }
-        }
-    }
+//    fun refresh() {
+//        viewModelScope.launch {
+//            try {
+//                _dataState.value = FeedModelState(refreshing = true)
+//                repository.getAll()
+//                _dataState.value = FeedModelState()
+//            } catch (e: Exception) {
+//                _dataState.value = FeedModelState(error = true)
+//            }
+//        }
+//    }
 
     fun save() {
         edited.value?.let {
