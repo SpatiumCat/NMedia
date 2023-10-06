@@ -31,7 +31,7 @@ android {
         }
         debug {
             manifestPlaceholders.usesCleartextTraffic = true
-            buildConfigField "String", "BASE_URL", "\"http://192.168.0.212:9999\""
+            buildConfigField "String", "BASE_URL", "\"http://10.0.2.2:9999\""
         }
     }
     compileOptions {
@@ -99,6 +99,7 @@ dependencies {
     implementation "com.google.dagger:hilt-android:$hilt_version"
     kapt "com.google.dagger:hilt-compiler:$hilt_version"
     implementation "androidx.paging:paging-runtime-ktx:$paging_version"
+    implementation "androidx.room:room-paging:$room_version"
 
 
 
