@@ -63,17 +63,32 @@ class PostRemoteMediator @Inject constructor(
                     LoadType.REFRESH -> {
 
                         postRemoteKeyDao.insert(
-                            listOf(
-                                PostRemoteKeyEntity(
-                                    PostRemoteKeyEntity.KeyType.AFTER,
-                                    body.first().id
-                                ),
+                            PostRemoteKeyEntity(
+                                PostRemoteKeyEntity.KeyType.AFTER,
+                                body.first().id
+                            )
+                        )
+                        if (postRemoteKeyDao.getAll().isEmpty()) {
+                            postRemoteKeyDao.insert(
                                 PostRemoteKeyEntity(
                                     PostRemoteKeyEntity.KeyType.BEFORE,
                                     body.last().id
                                 )
                             )
-                        )
+                        }
+
+//                        postRemoteKeyDao.insert(
+//                            listOf(
+//                                PostRemoteKeyEntity(
+//                                    PostRemoteKeyEntity.KeyType.AFTER,
+//                                    body.first().id
+//                                ),
+//                                PostRemoteKeyEntity(
+//                                    PostRemoteKeyEntity.KeyType.BEFORE,
+//                                    body.last().id
+//                                )
+//                            )
+//                        )
                     }
 
                     LoadType.PREPEND -> {
