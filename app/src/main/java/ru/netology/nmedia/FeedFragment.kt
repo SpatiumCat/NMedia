@@ -15,10 +15,13 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.paging.LoadState
+import androidx.paging.map
 import androidx.recyclerview.widget.RecyclerView.AdapterDataObserver
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import ru.netology.nmedia.activity.NewPostFragment.Companion.textArg
 import ru.netology.nmedia.adapter.OnInteractionListener
@@ -34,6 +37,7 @@ import java.util.*
 class FeedFragment : Fragment() {
 
     private lateinit var dialogBuilder: AlertDialog.Builder
+    private lateinit var adapter: PostAdapter
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -60,7 +64,7 @@ class FeedFragment : Fragment() {
             }
 
 
-        val adapter = PostAdapter(object : OnInteractionListener {
+        adapter = PostAdapter(object : OnInteractionListener {
 
             override fun onLike(post: Post) {
                 if (!authViewModel.isAuthorized) {
@@ -116,62 +120,16 @@ class FeedFragment : Fragment() {
             override fun onRetrySaving(post: Post) {
                 viewModel.retrySaving(post)
             }
-        })
 
+        }) { adapter.retry() }
 
         binding.list.adapter = adapter
-
 
         lifecycleScope.launch {
             viewModel.data.collectLatest {
                 adapter.submitData(it)
             }
         }
-
-
-//        viewModel.data.observe(viewLifecycleOwner) { state ->
-//            val newPost = adapter.currentList.size < state.posts.size
-//            adapter.submitList(state.posts) {
-//                if (newPost) binding.list.smoothScrollToPosition(0)
-//            }
-//            binding.emptyText.isVisible = state.empty
-//        }
-
-//        adapter.registerAdapterDataObserver(object : AdapterDataObserver() {
-//            override fun onItemRangeInserted(positionStart: Int, itemCount: Int) {
-//                if (positionStart == 0) {
-//                    binding.list.smoothScrollToPosition(0)
-//                }
-//            }
-//        })
-
-//        viewModel.dataState.observe(viewLifecycleOwner) { state ->
-//            binding.progress.isVisible = state.loading
-//            binding.swiperefresh.isRefreshing = state.refreshing
-//            if (state.error) {
-//                Snackbar.make(
-//                    binding.root, R.string.error_loading, Snackbar.LENGTH_LONG
-//                )
-//                    .setAction(R.string.retry_loading) { viewModel.loadPosts() }
-//                    .show()
-//            }
-//        }
-
-//        viewModel.newerCount.observe(viewLifecycleOwner) {
-//            when {
-//                it == 0 -> binding.newerPostButton.visibility = View.GONE
-//                it > 0 -> binding.newerPostButton.visibility = View.VISIBLE
-//            }
-//        }
-
-//        binding.newerPostButton.setOnClickListener {
-//            viewModel.showAllPosts()
-//            it.visibility = View.GONE
-//        }
-
-//        binding.retryButton.setOnClickListener {
-//            viewModel.loadPosts()
-//        }
 
         binding.add.setOnClickListener {
             if (!authViewModel.isAuthorized) {
@@ -187,11 +145,28 @@ class FeedFragment : Fragment() {
             adapter.loadStateFlow.collectLatest {
                 binding.swiperefresh.isRefreshing =
                     it.refresh is LoadState.Loading
-                            || it.append is LoadState.Loading
-                            || it.prepend is LoadState.Loading
             }
         }
-        authViewModel.data.observe(viewLifecycleOwner){
+
+        lifecycleScope.launch {
+            adapter.loadStateFlow.flatMapLatest { state ->
+                viewModel.data.map { pagingData ->
+                    val newData = pagingData.map { item ->
+                        when (item) {
+                            is Ad -> item
+                            is Loading -> if (state.append is LoadState.NotLoading
+                                || state.prepend is LoadState.NotLoading
+                                || state.refresh is LoadState.NotLoading
+                            ) item.copy(isLoading = false) else item
+                            is Post -> item
+                        }
+                    }
+                    adapter.submitData(newData)
+                    newData
+                }
+            }
+        }
+        authViewModel.data.observe(viewLifecycleOwner) {
             adapter.refresh()
         }
 

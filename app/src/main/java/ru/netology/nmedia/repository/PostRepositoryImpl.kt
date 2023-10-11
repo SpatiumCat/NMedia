@@ -6,6 +6,9 @@ import androidx.paging.ExperimentalPagingApi
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
+import androidx.paging.insertFooterItem
+import androidx.paging.insertHeaderItem
+import androidx.paging.insertSeparators
 import androidx.paging.map
 import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
@@ -19,7 +22,10 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
+import ru.netology.nmedia.Ad
 import ru.netology.nmedia.Attachment
+import ru.netology.nmedia.FeedItem
+import ru.netology.nmedia.Loading
 import ru.netology.nmedia.Post
 import ru.netology.nmedia.api.PostApiService
 import ru.netology.nmedia.auth.AppAuth
@@ -39,6 +45,7 @@ import ru.netology.nmedia.model.PhotoModel
 import java.io.IOException
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlin.random.Random
 
 
 //const val BASE_URL = "http://192.168.0.212:9999"
@@ -65,22 +72,9 @@ class PostRepositoryImpl @Inject constructor(
 
     private var posts = emptyList<Post>()
 
-//    override val data: Flow<List<Post>> = postDao.getAllVisible()
-//        .map(List<PostEntity>::toDto)
-//        .onEach { posts = it }
-//        .flowOn(Dispatchers.Default)
-
-//    override val data = Pager(
-//        config = PagingConfig(pageSize = 10, enablePlaceholders = false),
-//        pagingSourceFactory = {
-//            PostPagingSource(
-//                entryPoint.getPostApiService()
-//            )
-//        }
-//    ).flow
 
     @OptIn(ExperimentalPagingApi::class)
-    override val data: Flow<PagingData<Post>> = Pager(
+    override val data: Flow<PagingData<FeedItem>> = Pager(
         config = PagingConfig(pageSize = 5, enablePlaceholders = false),
         pagingSourceFactory = { postDao.getPagingSource() },
         remoteMediator = PostRemoteMediator(
@@ -88,7 +82,15 @@ class PostRepositoryImpl @Inject constructor(
             appDb = entryPoint.getAppDb(),
             postRemoteKeyDao = postRemoteKeyDao,
         )
-    ).flow.map { it.map(PostEntity::toDto) }
+    ).flow.map {
+        it.map(PostEntity::toDto)
+            .insertSeparators { previous, _ ->
+                if (previous?.id?.rem(5) == 0L) {
+                    Ad(Random.nextLong(), "figma.jpg")
+                } else { null }
+            }.insertFooterItem(item = Loading(Random.nextLong()))
+            .insertHeaderItem(item = Loading(Random.nextLong()))
+    }
 
 
     override fun getNewer(id: Long): Flow<Int> = flow {
