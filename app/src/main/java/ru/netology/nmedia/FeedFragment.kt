@@ -23,6 +23,7 @@ import kotlinx.coroutines.launch
 import ru.netology.nmedia.activity.NewPostFragment.Companion.textArg
 import ru.netology.nmedia.adapter.OnInteractionListener
 import ru.netology.nmedia.adapter.PostAdapter
+import ru.netology.nmedia.adapter.PostLoadingStateAdapter
 import ru.netology.nmedia.databinding.DialogSigninBinding
 import ru.netology.nmedia.databinding.FragmentFeedBinding
 import ru.netology.nmedia.viewmodel.AuthViewModel
@@ -119,7 +120,10 @@ class FeedFragment : Fragment() {
         })
 
 
-        binding.list.adapter = adapter
+        binding.list.adapter = adapter.withLoadStateHeaderAndFooter(
+            header = PostLoadingStateAdapter { adapter.retry() },
+            footer = PostLoadingStateAdapter { adapter.retry() },
+        )
 
 
         lifecycleScope.launch {
@@ -128,50 +132,6 @@ class FeedFragment : Fragment() {
             }
         }
 
-
-//        viewModel.data.observe(viewLifecycleOwner) { state ->
-//            val newPost = adapter.currentList.size < state.posts.size
-//            adapter.submitList(state.posts) {
-//                if (newPost) binding.list.smoothScrollToPosition(0)
-//            }
-//            binding.emptyText.isVisible = state.empty
-//        }
-
-//        adapter.registerAdapterDataObserver(object : AdapterDataObserver() {
-//            override fun onItemRangeInserted(positionStart: Int, itemCount: Int) {
-//                if (positionStart == 0) {
-//                    binding.list.smoothScrollToPosition(0)
-//                }
-//            }
-//        })
-
-//        viewModel.dataState.observe(viewLifecycleOwner) { state ->
-//            binding.progress.isVisible = state.loading
-//            binding.swiperefresh.isRefreshing = state.refreshing
-//            if (state.error) {
-//                Snackbar.make(
-//                    binding.root, R.string.error_loading, Snackbar.LENGTH_LONG
-//                )
-//                    .setAction(R.string.retry_loading) { viewModel.loadPosts() }
-//                    .show()
-//            }
-//        }
-
-//        viewModel.newerCount.observe(viewLifecycleOwner) {
-//            when {
-//                it == 0 -> binding.newerPostButton.visibility = View.GONE
-//                it > 0 -> binding.newerPostButton.visibility = View.VISIBLE
-//            }
-//        }
-
-//        binding.newerPostButton.setOnClickListener {
-//            viewModel.showAllPosts()
-//            it.visibility = View.GONE
-//        }
-
-//        binding.retryButton.setOnClickListener {
-//            viewModel.loadPosts()
-//        }
 
         binding.add.setOnClickListener {
             if (!authViewModel.isAuthorized) {
@@ -187,11 +147,9 @@ class FeedFragment : Fragment() {
             adapter.loadStateFlow.collectLatest {
                 binding.swiperefresh.isRefreshing =
                     it.refresh is LoadState.Loading
-                            || it.append is LoadState.Loading
-                            || it.prepend is LoadState.Loading
             }
         }
-        authViewModel.data.observe(viewLifecycleOwner){
+        authViewModel.data.observe(viewLifecycleOwner) {
             adapter.refresh()
         }
 
