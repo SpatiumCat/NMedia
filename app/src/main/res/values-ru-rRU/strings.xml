@@ -35,4 +35,7 @@
     <string name="confirm_the_password_edittext">Подтвердите пароль</string>
     <string name="password_edittext">Пароль</string>
     <string name="password_not_conf">Пароль не подтвержден</string>
+    <string name="date_separator_week">На прошлой неделе</string>
+    <string name="date_separator_yesterday">Вчера</string>
+    <string name="date_separator_today">Сегодня</string>
 </resources>
