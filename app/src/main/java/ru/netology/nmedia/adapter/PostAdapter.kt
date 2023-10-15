@@ -13,12 +13,14 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.CircleCrop
 import ru.netology.nmedia.Ad
 import ru.netology.nmedia.BuildConfig.BASE_URL
+import ru.netology.nmedia.DateSeparator
 import ru.netology.nmedia.FeedItem
 import ru.netology.nmedia.Post
 import ru.netology.nmedia.R
 import ru.netology.nmedia.countMapping
 import ru.netology.nmedia.databinding.CardAdBinding
 import ru.netology.nmedia.databinding.CardPostBinding
+import ru.netology.nmedia.databinding.DateSeparatorItemBinding
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -42,7 +44,9 @@ class PostAdapter(
         when (getItem(position)) {
             is Ad -> R.layout.card_ad
             is Post -> R.layout.card_post
+            is DateSeparator -> R.layout.date_separator_item
             null -> error("unknown item type")
+
         }
 
 
@@ -59,6 +63,11 @@ class PostAdapter(
                     CardAdBinding.inflate(LayoutInflater.from(parent.context), parent, false)
                 AdViewHolder(binding)
             }
+            R.layout.date_separator_item -> {
+                val binding =
+                    DateSeparatorItemBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+                DateSeparatorViewHolder(binding)
+            }
 
             else -> error("unknown view type: $viewType")
         }
@@ -67,8 +76,19 @@ class PostAdapter(
         when (val item = getItem(position)) {
             is Ad -> (holder as? AdViewHolder)?.bind(item)
             is Post -> (holder as? PostViewHolder)?.bind(item)
+            is DateSeparator -> (holder as? DateSeparatorViewHolder)?.bind(item)
             null -> error("unknown item type")
+
         }
+    }
+}
+
+class DateSeparatorViewHolder(
+    private val binding: DateSeparatorItemBinding,
+) : RecyclerView.ViewHolder(binding.root) {
+
+    fun bind(separator: DateSeparator) {
+        binding.textSeparator.text = separator.date
     }
 }
 
@@ -94,7 +114,10 @@ class PostViewHolder(
     fun bind(post: Post) {
         binding.apply {
             author.text = post.author
-            textPublished.text = SimpleDateFormat("dd.MM.yyyy").format(Date(post.published * 1000L))
+            textPublished.text = SimpleDateFormat(
+                "dd.MM.yyyy",
+                Locale.getDefault()
+            ).format(Date(post.published * 1000L))
             content.text = post.content
             like.isChecked = post.likedByMe
             like.text = post.likes.toString()

@@ -28,6 +28,11 @@ data class Ad(
     val image: String,
 ): FeedItem
 
+data class DateSeparator(
+    override val id: Long,
+    val date: String,
+): FeedItem
+
 data class Attachment(
     val url: String,
     val description: String?,

@@ -50,4 +50,7 @@
     <string name="confirm_the_password_edittext">Confirm the password</string>
     <string name="password_edittext">Password</string>
     <string name="password_not_conf">Password not confirmed</string>
+    <string name="date_separator_week">Last week</string>
+    <string name="date_separator_yesterday">Yesterday</string>
+    <string name="date_separator_today">Today</string>
 </resources>

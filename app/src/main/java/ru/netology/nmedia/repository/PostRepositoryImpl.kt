@@ -22,8 +22,10 @@ import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import ru.netology.nmedia.Ad
 import ru.netology.nmedia.Attachment
+import ru.netology.nmedia.DateSeparator
 import ru.netology.nmedia.FeedItem
 import ru.netology.nmedia.Post
+import ru.netology.nmedia.R
 import ru.netology.nmedia.api.PostApiService
 import ru.netology.nmedia.auth.AppAuth
 import ru.netology.nmedia.dao.DraftDao
@@ -68,11 +70,12 @@ class PostRepositoryImpl @Inject constructor(
     )
 
     private var posts = emptyList<Post>()
+    private val currentTime = System.currentTimeMillis() / 1000L
 
 
     @OptIn(ExperimentalPagingApi::class)
     override val data: Flow<PagingData<FeedItem>> = Pager(
-        config = PagingConfig(pageSize = 5, enablePlaceholders = false),
+        config = PagingConfig(pageSize = 25, enablePlaceholders = false),
         pagingSourceFactory = { postDao.getPagingSource() },
         remoteMediator = PostRemoteMediator(
             apiService = entryPoint.getPostApiService(),
@@ -81,9 +84,40 @@ class PostRepositoryImpl @Inject constructor(
         )
     ).flow.map { pagingData ->
         pagingData.map(PostEntity::toDto)
+            .insertSeparators { previous, next ->
+                    when {
+                        next == null -> null
+                        previous == null -> {
+                             DateSeparator(
+                                Random.nextLong(),
+                                context.getString(R.string.date_separator_today)
+                            )
+                        }
+
+                        (previous.published >= currentTime - 10L) && (next.published < currentTime - 10L) -> {
+                             DateSeparator(
+                                Random.nextLong(),
+                                context.getString(R.string.date_separator_yesterday)
+                            )
+                        }
+
+                        (previous.published >= currentTime - 20L) && (next.published < currentTime - 20L) -> {
+                             DateSeparator(
+                                Random.nextLong(),
+                                context.getString(R.string.date_separator_week)
+                            )
+                        }
+
+                        else -> null
+                    }
+                }
             .insertSeparators { previous, _ ->
-                if (previous?.id?.rem(5) == 0L) {
-                    Ad(Random.nextLong(), "figma.jpg")
+                if (previous is Post) {
+                    if (previous.id.rem(5) == 0L) {
+                        Ad(Random.nextLong(), "figma.jpg")
+                    } else {
+                        null
+                    }
                 } else {
                     null
                 }
@@ -113,21 +147,6 @@ class PostRepositoryImpl @Inject constructor(
             }
         }
     }
-
-//    override suspend fun getAll() {
-//        try {
-//            val response = entryPoint.getPostApiService().getAll()
-//            if (!response.isSuccessful) {
-//                throw ApiError(response.code(), response.message())
-//            }
-//            val body = response.body() ?: throw ApiError(response.code(), response.message())
-//            postDao.insert(body.map { it.copy(isSaved = true) }.toEntity())
-//        } catch (e: IOException) {
-//            throw NetworkError
-//        } catch (e: Exception) {
-//            throw UnknownError
-//        }
-//    }
 
 
     override suspend fun likeById(id: Long) {
